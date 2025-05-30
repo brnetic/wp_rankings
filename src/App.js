@@ -79,13 +79,13 @@ unranked,0.9,1.0,1.0,0.9,0.9,1.0,0.4,0.8,0.8,0.9,0.8,0.8,1.0,1.0,0.5,1.0,0.6,0.6
       {/* Hero Section */}
       <div className="text-center py-16 px-6">
         <h1 className="text-5xl font-thin text-gray-900 mb-4 tracking-tight">
-          Water Polo
+          Men's College Water Polo 2024
         </h1>
         <h2 className="text-2xl font-light text-gray-600 mb-8">
-          Match Outcome Probabilities
+          Win probabilities for differently ranked D1 water polo teams for season 2024
         </h2>
         <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
-          Interactive matrix showing win probabilities between differently ranked teams.
+          Matrix showing win probabilities between differently ranked teams.
           Hover over cells to explore matchup dynamics.
         </p>
       </div>
