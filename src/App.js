@@ -242,7 +242,7 @@ const WaterPoloMatrix = () => {
         </h2>
         <p className="text-sm md:text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
           Matrix showing win probabilities between differently ranked teams,
-          based on game data from MongoDB. Click on any cell to view specific matches.
+          based on 422 games played. Click on any cell to view specific matches.
         </p>
       </div>
 
