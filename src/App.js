@@ -401,22 +401,45 @@ const WaterPoloMatrix = () => {
                                   });
                                 }
                               }}
+                              onTouchStart={(e) => {
+                                // Record touch start position and time
+                                const touch = e.touches[0];
+                                e.currentTarget.touchStartX = touch.clientX;
+                                e.currentTarget.touchStartY = touch.clientY;
+                                e.currentTarget.touchStartTime = Date.now();
+                              }}
                               onTouchEnd={(e) => {
-                                // Handle touch events for mobile
-                                e.preventDefault();
-                                e.stopPropagation();
-                                console.log('Cell touched:', row.rank, 'vs', header);
-                                if (probValue !== null && delimValue !== null && delimValue > 0) {
-                                  fetchMatches(row.rank, header);
-                                } else {
-                                  setMatchesModal({
-                                    open: true,
-                                    matches: [],
-                                    loading: false,
-                                    rowRank: row.rank,
-                                    colRank: header,
-                                    error: 'No match data available for this ranking combination'
-                                  });
+                                // Only trigger if it was a tap, not a scroll
+                                const touch = e.changedTouches[0];
+                                const touchEndX = touch.clientX;
+                                const touchEndY = touch.clientY;
+                                const touchEndTime = Date.now();
+                                
+                                const startX = e.currentTarget.touchStartX || touchEndX;
+                                const startY = e.currentTarget.touchStartY || touchEndY;
+                                const startTime = e.currentTarget.touchStartTime || touchEndTime;
+                                
+                                const deltaX = Math.abs(touchEndX - startX);
+                                const deltaY = Math.abs(touchEndY - startY);
+                                const deltaTime = touchEndTime - startTime;
+                                
+                                // Only trigger if movement is small (< 10px) and time is short (< 500ms)
+                                if (deltaX < 10 && deltaY < 10 && deltaTime < 500) {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  console.log('Cell tapped:', row.rank, 'vs', header);
+                                  if (probValue !== null && delimValue !== null && delimValue > 0) {
+                                    fetchMatches(row.rank, header);
+                                  } else {
+                                    setMatchesModal({
+                                      open: true,
+                                      matches: [],
+                                      loading: false,
+                                      rowRank: row.rank,
+                                      colRank: header,
+                                      error: 'No match data available for this ranking combination'
+                                    });
+                                  }
                                 }
                               }}
                             >
