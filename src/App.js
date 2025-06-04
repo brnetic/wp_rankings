@@ -50,28 +50,48 @@ const WaterPoloMatrix = () => {
   // Fetch matches for specific cell
   const fetchMatches = async (rowRank, colRank) => {
     try {
-      setMatchesModal(prev => ({ ...prev, loading: true }));
-      if(colRank == "unranked"){
-        colRank = 21;
+      console.log('Fetching matches for:', rowRank, 'vs', colRank); // Debug log
+      
+      setMatchesModal(prev => ({ 
+        ...prev, 
+        loading: true, 
+        open: true,
+        rowRank: rowRank,
+        colRank: colRank,
+        error: null 
+      }));
+      
+      // Convert unranked to 21 for API call
+      let apiRowRank = rowRank;
+      let apiColRank = colRank;
+      
+      if(colRank === "unranked"){
+        apiColRank = 21;
       }
-      if(rowRank=='unranked'){
-        rowRank = 21;
+      if(rowRank === 'unranked'){
+        apiRowRank = 21;
       }
+      
+      console.log('API call with ranks:', apiRowRank, 'vs', apiColRank); // Debug log
+      
       const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://wpserver.onrender.com';
-      const response = await fetch(`${BASE_URL}/api/matches/${rowRank}/${colRank}`);
+      const response = await fetch(`${BASE_URL}/api/matches/${apiRowRank}/${apiColRank}`);
+      
+      console.log('Response status:', response.status); // Debug log
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const json = await response.json();
+      console.log('Received matches:', json); // Debug log
       
       setMatchesModal({
         open: true,
         matches: json.matches || [],
         loading: false,
-        rowRank,
-        colRank,
+        rowRank: rowRank, // Keep original rank names for display
+        colRank: colRank,
         error: null
       });
       
@@ -362,9 +382,41 @@ const WaterPoloMatrix = () => {
                                 })
                               }
                               onMouseLeave={() => setHoveredCell(null)}
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                console.log('Cell clicked:', row.rank, 'vs', header, 'probValue:', probValue, 'delimValue:', delimValue);
                                 if (probValue !== null && delimValue !== null && delimValue > 0) {
                                   fetchMatches(row.rank, header);
+                                } else {
+                                  console.log('No data available for this cell');
+                                  // Show a brief message for cells with no data
+                                  setMatchesModal({
+                                    open: true,
+                                    matches: [],
+                                    loading: false,
+                                    rowRank: row.rank,
+                                    colRank: header,
+                                    error: 'No match data available for this ranking combination'
+                                  });
+                                }
+                              }}
+                              onTouchEnd={(e) => {
+                                // Handle touch events for mobile
+                                e.preventDefault();
+                                e.stopPropagation();
+                                console.log('Cell touched:', row.rank, 'vs', header);
+                                if (probValue !== null && delimValue !== null && delimValue > 0) {
+                                  fetchMatches(row.rank, header);
+                                } else {
+                                  setMatchesModal({
+                                    open: true,
+                                    matches: [],
+                                    loading: false,
+                                    rowRank: row.rank,
+                                    colRank: header,
+                                    error: 'No match data available for this ranking combination'
+                                  });
                                 }
                               }}
                             >
