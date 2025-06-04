@@ -85,8 +85,6 @@ const WaterPoloMatrix = () => {
     }
   };
 
-
-
   // Convert a decimal to a fraction string if needed
   const decimalToFraction = (decimal) => {
     if (decimal === null) return null;
@@ -215,27 +213,27 @@ const WaterPoloMatrix = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       {/* Header */}
-      <div className="text-center py-16 px-6">
-        <h1 className="text-5xl font-thin text-gray-900 mb-4 tracking-tight">
+      <div className="text-center py-8 md:py-16 px-6">
+        <h1 className="text-3xl md:text-5xl font-thin text-gray-900 mb-4 tracking-tight">
           Men's College Water Polo 2024
         </h1>
-        <h2 className="text-2xl font-light text-gray-600 mb-8">
+        <h2 className="text-lg md:text-2xl font-light text-gray-600 mb-8">
           Win probabilities for differently ranked D1 water polo teams for season 2024.
         </h2>
-        <p className="text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-sm md:text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
           Matrix showing win probabilities between differently ranked teams,
           based on game data from MongoDB. Click on any cell to view specific matches.
         </p>
       </div>
 
       {/* Display Mode Toggle */}
-      <div className="max-w-6xl mx-auto px-6 mb-8">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Display Format</h3>
-          <div className="flex flex-wrap gap-3">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 mb-6 md:mb-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
+          <h3 className="text-base md:text-lg font-medium text-gray-900 mb-4">Display Format</h3>
+          <div className="flex flex-wrap gap-2 md:gap-3">
             <button
               onClick={() => setDisplayMode('decimal')}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+              className={`px-3 md:px-4 py-2 rounded-lg font-medium transition-all text-sm md:text-base ${
                 displayMode === 'decimal'
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -245,7 +243,7 @@ const WaterPoloMatrix = () => {
             </button>
             <button
               onClick={() => setDisplayMode('percentage')}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+              className={`px-3 md:px-4 py-2 rounded-lg font-medium transition-all text-sm md:text-base ${
                 displayMode === 'percentage'
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -255,7 +253,7 @@ const WaterPoloMatrix = () => {
             </button>
             <button
               onClick={() => setDisplayMode('fraction')}
-              className={`px-4 py-2 rounded-lg font-medium transition-all ${
+              className={`px-3 md:px-4 py-2 rounded-lg font-medium transition-all text-sm md:text-base ${
                 displayMode === 'fraction'
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -268,30 +266,30 @@ const WaterPoloMatrix = () => {
       </div>
 
       {/* Legend */}
-      <div className="max-w-6xl mx-auto px-6 mb-12">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Probability Scale</h3>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 mb-8 md:mb-12">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
+          <h3 className="text-base md:text-lg font-medium text-gray-900 mb-4">Probability Scale</h3>
+          <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+            <div className="grid grid-cols-2 md:flex md:items-center gap-3 md:space-x-4">
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 bg-red-500 rounded"></div>
-                <span className="text-sm text-gray-600">0% (Certain Loss)</span>
+                <div className="w-3 h-3 md:w-4 md:h-4 bg-red-500 rounded"></div>
+                <span className="text-xs md:text-sm text-gray-600">0% (Certain Loss)</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 bg-orange-500 rounded"></div>
-                <span className="text-sm text-gray-600">Low (0–30%)</span>
+                <div className="w-3 h-3 md:w-4 md:h-4 bg-orange-500 rounded"></div>
+                <span className="text-xs md:text-sm text-gray-600">Low (0–30%)</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 bg-yellow-500 rounded"></div>
-                <span className="text-sm text-gray-600">Medium (30–70%)</span>
+                <div className="w-3 h-3 md:w-4 md:h-4 bg-yellow-500 rounded"></div>
+                <span className="text-xs md:text-sm text-gray-600">Medium (30–70%)</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-4 bg-green-500 rounded"></div>
-                <span className="text-sm text-gray-600">High (70–100%)</span>
+                <div className="w-3 h-3 md:w-4 md:h-4 bg-green-500 rounded"></div>
+                <span className="text-xs md:text-sm text-gray-600">High (70–100%)</span>
               </div>
             </div>
-            <div>
-              <span className="text-sm text-gray-700">
+            <div className="mt-2 md:mt-0">
+              <span className="text-xs md:text-sm text-gray-700">
                 Opacity represents number of the games played
               </span>
             </div>
@@ -300,17 +298,17 @@ const WaterPoloMatrix = () => {
       </div>
 
       {/* Probability Matrix */}
-      <div className="max-w-7xl mx-auto px-6 pb-16">
-        <div className="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
-          <div className="p-8">
-            <div className="flex items-center justify-between mb-8">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pb-8 md:pb-16">
+        <div className="bg-white rounded-2xl md:rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+          <div className="p-4 md:p-8">
+            <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0 mb-6 md:mb-8">
               <div>
-                <h3 className="text-xl font-medium text-gray-900">Probability Matrix</h3>
-                <p className="text-gray-500 mt-1">Row team vs Column team win probability</p>
+                <h3 className="text-lg md:text-xl font-medium text-gray-900">Probability Matrix</h3>
+                <p className="text-gray-500 mt-1 text-sm md:text-base">Row team vs Column team win probability</p>
               </div>
               {hoveredCell && (
-                <div className="bg-gray-50 rounded-xl px-4 py-2">
-                  <span className="text-sm font-medium text-gray-900">
+                <div className="bg-gray-50 rounded-xl px-3 md:px-4 py-2">
+                  <span className="text-xs md:text-sm font-medium text-gray-900">
                     Rank {formatRank(hoveredCell.row)} vs Rank {formatRank(hoveredCell.col)}:{' '}
                     <span className="text-blue-600">
                       {formatHoverValue(hoveredCell.value, hoveredCell.delim)}
@@ -320,94 +318,97 @@ const WaterPoloMatrix = () => {
               )}
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr>
-                    <th className="w-12 h-12"></th>
-                    {headers.map((header) => (
-                      <th
-                        key={header}
-                        className="w-12 h-12 text-xs font-medium text-gray-600 text-center"
-                      >
-                        {formatRank(header)}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {probData.map((row, rowIndex) => (
-                    <tr key={row.rank}>
-                      <td className="w-12 h-12 text-xs font-medium text-gray-600 text-center border-r border-gray-100">
-                        {formatRank(row.rank)}
-                      </td>
-                      {headers.map((header) => {
-                        const probValue = row[header];
-                        const delimValue = delimData[rowIndex]?.[header];
-                        const isHovered =
-                          hoveredCell?.row === row.rank && hoveredCell?.col === header;
-                        const isHighlighted =
-                          selectedTeam === row.rank || selectedTeam === header;
-
-                        return (
-                          <td
-                            key={`${row.rank}-${header}`}
-                            className="w-12 h-12 p-0.5"
-                            onMouseEnter={() =>
-                              setHoveredCell({
-                                row: row.rank,
-                                col: header,
-                                value: probValue,
-                                delim: delimValue,
-                              })
-                            }
-                            onMouseLeave={() => setHoveredCell(null)}
-                            onClick={() => {
-                              if (probValue !== null && delimValue !== null && delimValue > 0) {
-                                fetchMatches(row.rank, header);
-                              }
-                            }}
-                          >
-                            <div
-                              className={`w-full h-full rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center ${
-                                isHovered
-                                  ? 'ring-2 ring-blue-400 ring-offset-1'
-                                  : isHighlighted
-                                  ? 'ring-1 ring-blue-300'
-                                  : ''
-                              } ${probValue !== null && delimValue !== null && delimValue > 0 ? 'hover:scale-105' : ''}`}
-                              style={getCellStyle(probValue, delimValue)}
-                            >
-                              {probValue !== null && delimValue !== null && (
-                                <span
-                                  className={`text-xs font-medium text-white drop-shadow-sm ${
-                                    displayMode === 'fraction'
-                                      ? 'text-[10px] leading-tight'
-                                      : ''
-                                  }`}
-                                >
-                                  {formatCellValue(probValue, delimValue)}
-                                </span>
-                              )}
-                            </div>
-                          </td>
-                        );
-                      })}
+            {/* Matrix container with sticky headers */}
+            <div className="relative border border-gray-200 rounded-lg overflow-hidden">
+              <div className="overflow-auto max-h-[70vh]" style={{ maxWidth: '100%' }}>
+                <table className="relative">
+                  <thead className="bg-white sticky top-0 z-20 border-b border-gray-200">
+                    <tr>
+                      <th className="sticky left-0 z-30 bg-white border-r border-gray-200 w-12 h-12 min-w-12"></th>
+                      {headers.map((header) => (
+                        <th
+                          key={header}
+                          className="w-12 h-12 min-w-12 text-xs font-medium text-gray-600 text-center bg-white"
+                        >
+                          {formatRank(header)}
+                        </th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {probData.map((row, rowIndex) => (
+                      <tr key={row.rank}>
+                        <td className="sticky left-0 z-10 bg-white border-r border-gray-200 w-12 h-12 min-w-12 text-xs font-medium text-gray-600 text-center">
+                          {formatRank(row.rank)}
+                        </td>
+                        {headers.map((header) => {
+                          const probValue = row[header];
+                          const delimValue = delimData[rowIndex]?.[header];
+                          const isHovered =
+                            hoveredCell?.row === row.rank && hoveredCell?.col === header;
+                          const isHighlighted =
+                            selectedTeam === row.rank || selectedTeam === header;
+
+                          return (
+                            <td
+                              key={`${row.rank}-${header}`}
+                              className="w-12 h-12 min-w-12 p-0.5"
+                              onMouseEnter={() =>
+                                setHoveredCell({
+                                  row: row.rank,
+                                  col: header,
+                                  value: probValue,
+                                  delim: delimValue,
+                                })
+                              }
+                              onMouseLeave={() => setHoveredCell(null)}
+                              onClick={() => {
+                                if (probValue !== null && delimValue !== null && delimValue > 0) {
+                                  fetchMatches(row.rank, header);
+                                }
+                              }}
+                            >
+                              <div
+                                className={`w-full h-full rounded-lg transition-all duration-200 cursor-pointer flex items-center justify-center ${
+                                  isHovered
+                                    ? 'ring-2 ring-blue-400 ring-offset-1'
+                                    : isHighlighted
+                                    ? 'ring-1 ring-blue-300'
+                                    : ''
+                                } ${probValue !== null && delimValue !== null && delimValue > 0 ? 'hover:scale-105' : ''}`}
+                                style={getCellStyle(probValue, delimValue)}
+                              >
+                                {probValue !== null && delimValue !== null && (
+                                  <span
+                                    className={`text-xs font-medium text-white drop-shadow-sm ${
+                                      displayMode === 'fraction'
+                                        ? 'text-[10px] leading-tight'
+                                        : ''
+                                    }`}
+                                  >
+                                    {formatCellValue(probValue, delimValue)}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="text-center py-12 px-6">
-        <p className="text-sm text-gray-400">
+      <div className="text-center py-8 md:py-12 px-6">
+        <p className="text-xs md:text-sm text-gray-400">
           Opacity ∝ (number of games / 8). Higher delim → more opaque.
         </p>
-        <p className="text-sm text-gray-400 mt-2">
+        <p className="text-xs md:text-sm text-gray-400 mt-2">
           Data loaded from MongoDB • {probData.length} teams • {headers.length} ranks
         </p>
       </div>
@@ -416,13 +417,13 @@ const WaterPoloMatrix = () => {
       {matchesModal.open && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
+            <div className="p-4 md:p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900">
+                  <h3 className="text-lg md:text-xl font-semibold text-gray-900">
                     Matches: Rank {formatRank(matchesModal.rowRank)} vs Rank {formatRank(matchesModal.colRank)}
                   </h3>
-                  <p className="text-gray-500 mt-1">
+                  <p className="text-gray-500 mt-1 text-sm md:text-base">
                     {matchesModal.matches.length} match{matchesModal.matches.length !== 1 ? 'es' : ''} found
                   </p>
                 </div>
@@ -435,7 +436,7 @@ const WaterPoloMatrix = () => {
               </div>
             </div>
             
-            <div className="p-6 overflow-y-auto max-h-96">
+            <div className="p-4 md:p-6 overflow-y-auto max-h-96">
               {matchesModal.loading ? (
                 <div className="text-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -452,20 +453,20 @@ const WaterPoloMatrix = () => {
               ) : (
                 <div className="space-y-4">
                   {matchesModal.matches.map((match, index) => (
-                    <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div key={index} className="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
                       <div className="flex items-center justify-between mb-2">
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-xs md:text-sm font-medium text-gray-900">
                           {match.date}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className="text-xs md:text-sm text-gray-500">
                           #{match.homeTeamRanking} vs #{match.awayTeamRanking}
                         </div>
                       </div>
-                      <div className="text-lg font-semibold">
+                      <div className="text-sm md:text-lg font-semibold">
                         <span className="text-gray-900">{match.homeTeam}</span>
-                        <span className="mx-2 text-blue-600">{match.homeGoals}</span>
+                        <span className="mx-1 md:mx-2 text-blue-600">{match.homeGoals}</span>
                         <span className="text-gray-400">-</span>
-                        <span className="mx-2 text-blue-600">{match.awayGoals}</span>
+                        <span className="mx-1 md:mx-2 text-blue-600">{match.awayGoals}</span>
                         <span className="text-gray-900">{match.awayTeam}</span>
                       </div>
                     </div>
