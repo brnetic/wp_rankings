@@ -235,14 +235,14 @@ const WaterPoloMatrix = () => {
       {/* Header */}
       <div className="text-center py-8 md:py-16 px-6">
         <h1 className="text-3xl md:text-5xl font-thin text-gray-900 mb-4 tracking-tight">
-          Men's College Water Polo 2024
+          Men's College Water Polo 2019-2024
         </h1>
         <h2 className="text-lg md:text-2xl font-light text-gray-600 mb-8">
-          Win probabilities for differently ranked D1 water polo teams for season 2024.
+          Win probabilities for differently ranked D1 water polo teams for seasons 2019 to 2024.
         </h2>
         <p className="text-sm md:text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
           Matrix showing win probabilities between differently ranked teams,
-          based on 422 games played. Click on any cell to view specific matches.
+          based on 2052 games played. Click on any cell to view specific matches.
         </p>
       </div>
 
@@ -253,7 +253,7 @@ const WaterPoloMatrix = () => {
           <div className="flex flex-wrap gap-2 md:gap-3">
             <button
               onClick={() => setDisplayMode('decimal')}
-              className={`px-3 md:px-4 py-2 rounded-lg font-medium transition-all text-sm md:text-base ${
+              className={`px-3 md:px-4 py-2 rounded-lg font-medium tra</svg>nsition-all text-sm md:text-base ${
                 displayMode === 'decimal'
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
@@ -529,20 +529,50 @@ const WaterPoloMatrix = () => {
                 <div className="space-y-4">
                   {matchesModal.matches.map((match, index) => (
                     <div key={index} className="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-xs md:text-sm font-medium text-gray-900">
-                          {match.date}
+                      <div className="flex flex-col space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="text-xs md:text-sm font-medium text-gray-900">
+                            {match.date}
+                          </div>
+                          <div className="text-xs md:text-sm text-gray-500">
+                            #{match.homeTeamRanking} vs #{match.awayTeamRanking}
+                          </div>
                         </div>
-                        <div className="text-xs md:text-sm text-gray-500">
-                          #{match.homeTeamRanking} vs #{match.awayTeamRanking}
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="text-sm md:text-lg font-semibold">
+                            <span className="text-gray-900">{match.homeTeam}</span>
+                            <span className="mx-1 md:mx-2 text-blue-600">{match.homeGoals}</span>
+                            <span className="text-gray-400">-</span>
+                            <span className="mx-1 md:mx-2 text-blue-600">{match.awayGoals}</span>
+                            <span className="text-gray-900">{match.awayTeam}</span>
+                          </div>
+                          
+                          {match.newsUrl && (
+                            <a
+                              href={match.newsUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex items-center space-x-1 text-sm text-blue-600 hover:text-blue-700 transition-colors px-3 py-1 rounded-md hover:bg-blue-50"
+                            >
+                              <span>News</span>
+                              <svg 
+                                xmlns="http://www.w3.org/2000/svg" 
+                                className="h-4 w-4" 
+                                fill="none" 
+                                viewBox="0 0 24 24" 
+                                stroke="currentColor"
+                              >
+                                <path 
+                                  strokeLinecap="round" 
+                                  strokeLinejoin="round" 
+                                  strokeWidth={2} 
+                                  d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" 
+                                />
+                              </svg>
+                            </a>
+                          )}
                         </div>
-                      </div>
-                      <div className="text-sm md:text-lg font-semibold">
-                        <span className="text-gray-900">{match.homeTeam}</span>
-                        <span className="mx-1 md:mx-2 text-blue-600">{match.homeGoals}</span>
-                        <span className="text-gray-400">-</span>
-                        <span className="mx-1 md:mx-2 text-blue-600">{match.awayGoals}</span>
-                        <span className="text-gray-900">{match.awayTeam}</span>
                       </div>
                     </div>
                   ))}
