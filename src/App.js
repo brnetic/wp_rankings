@@ -14,21 +14,45 @@ const WaterPoloMatrix = () => {
   const [delimData, setDelimData] = useState([]);  // Array of { rank: "1", "1":4, … }
 
   // Fetch from your Flask API on mount
+  const fetchWithCache = async (url) => {
+    // Try to get data from localStorage first
+    const cachedData = localStorage.getItem(url);
+    if (cachedData) {
+      const { data, timestamp } = JSON.parse(cachedData);
+      // Check if cache is less than 1 hour old
+      if (Date.now() - timestamp < 3600000) {
+        return data;
+      }
+    }
+
+    // If no cache or expired, fetch new data
+    const response = await fetch(url, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=7200'
+      }
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+
+    // Store in localStorage with timestamp
+    localStorage.setItem(url, JSON.stringify({
+      data,
+      timestamp: Date.now()
+    }));
+
+    return data;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
         
-        // Updated to use your correct port
         const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://wpserver.onrender.com';
-        const response = await fetch(`${BASE_URL}/api/matrix`);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const json = await response.json();
+        const json = await fetchWithCache(`${BASE_URL}/api/matrix`);
         
         console.log('Received data:', json); // Debug log
         
@@ -75,15 +99,7 @@ const WaterPoloMatrix = () => {
       console.log('API call with ranks:', apiRowRank, 'vs', apiColRank); // Debug log
       
       const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://wpserver.onrender.com';
-      const response = await fetch(`${BASE_URL}/api/matches/${apiRowRank}/${apiColRank}`);
-      
-      console.log('Response status:', response.status); // Debug log
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const json = await response.json();
+      const json = await fetchWithCache(`${BASE_URL}/api/matches/${apiRowRank}/${apiColRank}`);
       console.log('Received matches:', json); // Debug log
       
       setMatchesModal({
