@@ -564,7 +564,7 @@ const WaterPoloMatrix = () => {
       {/* Header */}
       <div className="text-center py-8 md:py-16 px-6">
         <h1 className="text-3xl md:text-5xl font-thin text-gray-900 mb-4 tracking-tight">
-          Men's College Water Polo 2008-2024
+          Men's College Water Polo 2010-2024
         </h1>
         <h2 className="text-lg md:text-2xl font-light text-gray-600 mb-8">
           Win probabilities for differently ranked D1 water polo teams for seasons 2008 to 2024.
