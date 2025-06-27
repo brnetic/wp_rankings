@@ -569,7 +569,7 @@ const WaterPoloMatrix = () => {
           Men's College Water Polo 2010-2024
         </h1>
         <h2 className="text-lg md:text-2xl font-light text-gray-600 mb-8">
-          Win probabilities for differently ranked D1 water polo teams for seasons 2008 to 2024.
+          Win probabilities for differently ranked D1 water polo teams for seasons 2010 to 2024.
         </h2>
         <p className="text-sm md:text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
           Matrix showing win probabilities between differently ranked teams,
