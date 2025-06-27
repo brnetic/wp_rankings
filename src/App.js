@@ -337,7 +337,7 @@ const WaterPoloMatrix = () => {
       
       const dataPoints = dates.map(date => {
         const entry = teamData.find(item => item.date === date);
-        return entry ? entry.rank : null;
+        return entry ? entry.rank : 22; // Use 22 for unranked teams instead of null
       });
 
       const teamColor = getTeamColor(apiTeamName, index);
@@ -368,7 +368,7 @@ const WaterPoloMatrix = () => {
         pointHoverRadius: 8,
         pointBorderWidth: 2,
         pointBorderColor: '#ffffff',
-        spanGaps: true
+        spanGaps: true // Connect points to show team progression including unranked periods
       };
     });
 
@@ -397,7 +397,8 @@ const WaterPoloMatrix = () => {
           },
           label: function(context) {
             const rank = context.parsed.y;
-            return `${context.dataset.label}: Rank ${rank}`;
+            const rankDisplay = rank === 22 ? 'Unranked' : `Rank ${rank}`;
+            return `${context.dataset.label}: ${rankDisplay}`;
           }
         }
       }
@@ -421,11 +422,12 @@ const WaterPoloMatrix = () => {
         },
         reverse: true, // This inverts the Y-axis (rank 1 at top)
         min: 0.5,
-        max: 21.5,
+        max: 22.5, // Extended to accommodate unranked position
         ticks: {
           stepSize: 1,
           callback: function(value) {
             // Only show integer values
+            if (value === 22) return 'UR';
             if (value === 21) return 'UR';
             if (value < 1) return '';
             return Math.floor(value);
