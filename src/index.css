@@ -15,3 +15,299 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Custom date input styling */
+input[type="date"] {
+  position: relative;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Hide the default calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* Style for WebKit browsers */
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox date input styling */
+input[type="date"]::-moz-focus-inner {
+  border: 0;
+  outline: 0;
+}
+
+/* Modern focus states */
+input[type="date"]:focus {
+  outline: none;
+  transform: translateY(-1px);
+}
+
+/* Custom hover effects */
+input[type="date"]:hover {
+  transform: translateY(-1px);
+}
+
+/* Custom date input styling */
+input[type="date"] {
+  position: relative;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Hide the default calendar icon */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* Style for WebKit browsers */
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox date input styling */
+input[type="date"]::-moz-focus-inner {
+  border: 0;
+  outline: 0;
+}
+
+/* Modern focus states */
+input[type="date"]:focus {
+  outline: none;
+  transform: translateY(-1px);
+}
+
+/* Custom hover effects */
+input[type="date"]:hover {
+  transform: translateY(-1px);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  background: transparent;
+}
+
+input[type="date"]::-webkit-datetime-edit {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  background: transparent;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+  color: transparent;
+  background: transparent;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+  background: transparent;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+input[type="date"]:focus {
+  outline: none;
+}
+
+/* Modern date picker hover effects */
+.group:hover input[type="date"] {
+  border-color: #93c5fd;
+}
+
+.group:hover .absolute svg {
+  color: #60a5fa;
+}
+
+/* React DatePicker Custom Styles */
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker__input-container {
+  width: 100%;
+}
+
+.react-datepicker {
+  font-family: inherit;
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+  color: white;
+  backdrop-filter: blur(20px);
+}
+
+.react-datepicker__triangle {
+  display: none;
+}
+
+.react-datepicker__header {
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px 20px 0 0;
+  padding: 20px;
+}
+
+.react-datepicker__current-month {
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.react-datepicker__navigation {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  line-height: 35px;
+  text-align: center;
+  top: 15px;
+  transition: all 0.3s ease;
+}
+
+.react-datepicker__navigation:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: white;
+  border-width: 2px 2px 0 0;
+  width: 8px;
+  height: 8px;
+}
+
+.react-datepicker__day-names {
+  background: transparent;
+  margin-bottom: 5px;
+}
+
+.react-datepicker__day-name {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 500;
+  font-size: 12px;
+  margin: 0.166rem;
+  width: 2rem;
+  line-height: 2rem;
+}
+
+.react-datepicker__month {
+  margin: 15px;
+  text-align: center;
+}
+
+.react-datepicker__week {
+  display: flex;
+  justify-content: space-around;
+}
+
+.react-datepicker__day {
+  color: white;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  line-height: 35px;
+  margin: 2px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.react-datepicker__day:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.1);
+}
+
+.react-datepicker__day--selected {
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  color: white;
+  font-weight: 600;
+  transform: scale(1.1);
+  box-shadow: 0 4px 15px rgba(96, 165, 250, 0.4);
+}
+
+.react-datepicker__day--keyboard-selected {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.react-datepicker__day--today {
+  background: rgba(147, 197, 253, 0.3);
+  font-weight: 600;
+}
+
+.react-datepicker__day--outside-month {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.react-datepicker__day--disabled {
+  color: rgba(255, 255, 255, 0.3);
+  cursor: not-allowed;
+}
+
+.react-datepicker__day--disabled:hover {
+  background: transparent;
+  transform: none;
+}
+
+/* Custom input styling for DatePicker */
+.custom-date-input {
+  width: 100%;
+  padding: 16px 16px 16px 48px;
+  border: none;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  outline: none;
+}
+
+.custom-date-input:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.custom-date-input.start-date {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+}
+
+.custom-date-input.end-date {
+  background: linear-gradient(135deg, #fce7f3 0%, #f3e8ff 100%);
+}

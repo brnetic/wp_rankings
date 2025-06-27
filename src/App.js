@@ -1,4 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const WaterPoloMatrix = () => {
   const [hoveredCell, setHoveredCell] = useState(null);
@@ -7,6 +30,21 @@ const WaterPoloMatrix = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [matchesModal, setMatchesModal] = useState({ open: false, matches: [], loading: false, rowRank: null, colRank: null });
+
+  // Ranking history states
+  const [showRankingHistory, setShowRankingHistory] = useState(true);
+  const [rankingData, setRankingData] = useState([]);
+  const [rankingLoading, setRankingLoading] = useState(false);
+  const [selectedTeams, setSelectedTeams] = useState([
+    'University of Southern California',
+    'University of California',
+    'University of California-Los Angeles',
+    'Stanford University'
+  ]);
+  const [dateRange, setDateRange] = useState({
+    start: new Date('2008-01-01'),
+    end: new Date('2024-12-31')
+  });
 
   // State to hold fetched data
   const [headers, setHeaders] = useState([]);  // ["1","2",…,"20","unranked"]
@@ -121,6 +159,31 @@ const WaterPoloMatrix = () => {
     }
   };
 
+  // Fetch ranking history data
+  const fetchRankingHistory = async () => {
+    try {
+      setRankingLoading(true);
+      const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://wpserver.onrender.com';
+      const teamNamesStr = selectedTeams.join(',');
+      const url = `${BASE_URL}/rankings/${encodeURIComponent(teamNamesStr)}/${dateRange.start}/${dateRange.end}`;
+      
+      console.log('Fetching ranking history from:', url);
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      
+      console.log('Received ranking data:', data);
+      setRankingData(data.data || []);
+    } catch (err) {
+      console.error('Error fetching ranking history:', err);
+      setRankingData([]);
+    } finally {
+      setRankingLoading(false);
+    }
+  };
+
   // Convert a decimal to a fraction string if needed
   const decimalToFraction = (decimal) => {
     if (decimal === null) return null;
@@ -214,6 +277,174 @@ const WaterPoloMatrix = () => {
     setMatchesModal({ open: false, matches: [], loading: false, rowRank: null, colRank: null, error: null });
   };
 
+  // Prepare chart data for ranking history
+  const prepareChartData = () => {
+    if (!rankingData.length) return { labels: [], datasets: [] };
+
+    // Get unique dates and sort them
+    const dates = [...new Set(rankingData.map(item => item.date))].sort();
+    
+    // Team colors
+    const teamColors = {
+      'University of Southern California': '#DC2626', // Red-600
+      'University of California': '#1E40AF', // Blue-800 (Navy)
+      'University of California-Los Angeles': '#0284C7', // Sky-600
+      'Stanford University': '#B91C1C', // Red-700
+      'Pepperdine University': '#EA580C', // Orange-600
+      'University of the Pacific': '#059669' // Emerald-600
+    };
+
+    // Create datasets for each team
+    const datasets = selectedTeams.map(team => {
+      const teamData = rankingData.filter(item => item.team_name === team);
+      const dataPoints = dates.map(date => {
+        const entry = teamData.find(item => item.date === date);
+        return entry ? entry.rank : null;
+      });
+
+      return {
+        label: team.replace('University of Southern California', 'USC')
+                  .replace('University of California-Los Angeles', 'UCLA')
+                  .replace('University of California', 'Berkeley'),
+        data: dataPoints,
+        borderColor: teamColors[team] || '#374151',
+        backgroundColor: teamColors[team] || '#374151',
+        fill: false,
+        tension: 0.1,
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        spanGaps: true
+      };
+    });
+
+    return {
+      labels: dates,
+      datasets
+    };
+  };
+
+  // Chart options with inverted Y-axis
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'Team Rankings Over Time'
+      },
+      tooltip: {
+        callbacks: {
+          title: function(context) {
+            return `Date: ${context[0].label}`;
+          },
+          label: function(context) {
+            const rank = context.parsed.y;
+            return `${context.dataset.label}: Rank ${rank}`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        display: true,
+        title: {
+          display: true,
+          text: 'Date'
+        },
+        ticks: {
+          maxTicksLimit: 10
+        }
+      },
+      y: {
+        display: true,
+        title: {
+          display: true,
+          text: 'Ranking'
+        },
+        reverse: true, // This inverts the Y-axis (rank 1 at top)
+        min: 1,
+        max: 21,
+        ticks: {
+          stepSize: 1,
+          callback: function(value) {
+            return value === 21 ? 'UR' : value;
+          }
+        }
+      }
+    },
+    interaction: {
+      mode: 'index',
+      intersect: false,
+    }
+  };
+
+  // Toggle team selection and auto-load data
+  const toggleTeamSelection = (team) => {
+    setSelectedTeams(prev => {
+      const newSelectedTeams = prev.includes(team) 
+        ? prev.filter(t => t !== team)
+        : [...prev, team];
+      
+      // Auto-load ranking history when teams change
+      if (newSelectedTeams.length > 0) {
+        setTimeout(() => {
+          fetchRankingHistoryWithTeams(newSelectedTeams);
+        }, 100);
+      } else {
+        setRankingData([]);
+      }
+      
+      return newSelectedTeams;
+    });
+  };
+
+  // Fetch ranking history with specific teams
+  const fetchRankingHistoryWithTeams = async (teams) => {
+    try {
+      setRankingLoading(true);
+      const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://wpserver.onrender.com';
+      const teamNamesStr = teams.join(',');
+      const startDate = dateRange.start.toISOString().split('T')[0];
+      const endDate = dateRange.end.toISOString().split('T')[0];
+      const url = `${BASE_URL}/rankings/${encodeURIComponent(teamNamesStr)}/${startDate}/${endDate}`;
+      
+      console.log('Fetching ranking history from:', url);
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      
+      console.log('Received ranking data:', data);
+      setRankingData(data.data || []);
+    } catch (err) {
+      console.error('Error fetching ranking history:', err);
+      setRankingData([]);
+    } finally {
+      setRankingLoading(false);
+    }
+  };
+
+  // Available teams for selection
+  const availableTeams = [
+    'University of Southern California',
+    'University of California',
+    'University of California-Los Angeles',
+    'Stanford University',
+    'Pepperdine University',
+    'University of the Pacific'
+  ];
+
+  // Auto-load ranking history on component mount for pre-selected teams
+  useEffect(() => {
+    if (selectedTeams.length > 0) {
+      fetchRankingHistoryWithTeams(selectedTeams);
+    }
+  }, [dateRange]); // Re-fetch when date range changes
+
   // Loading state
   if (loading) {
     return (
@@ -251,10 +482,10 @@ const WaterPoloMatrix = () => {
       {/* Header */}
       <div className="text-center py-8 md:py-16 px-6">
         <h1 className="text-3xl md:text-5xl font-thin text-gray-900 mb-4 tracking-tight">
-          Men's College Water Polo 2019-2024
+          Men's College Water Polo 2008-2024
         </h1>
         <h2 className="text-lg md:text-2xl font-light text-gray-600 mb-8">
-          Win probabilities for differently ranked D1 water polo teams for seasons 2019 to 2024.
+          Win probabilities for differently ranked D1 water polo teams for seasons 2008 to 2024.
         </h2>
         <p className="text-sm md:text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
           Matrix showing win probabilities between differently ranked teams,
@@ -504,6 +735,242 @@ const WaterPoloMatrix = () => {
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Ranking History Section */}
+      <div className="max-w-6xl mx-auto px-4 md:px-6 mb-8 md:mb-12">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
+          <div className="mb-6">
+            <h3 className="text-base md:text-lg font-medium text-gray-900">
+              Ranking History
+            </h3>
+            <p className="text-gray-500 mt-1 text-sm">
+              Track team rankings over time with interactive charts
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {/* Team Selection */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-3">Select Teams:</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {availableTeams.map(team => {
+                  const isSelected = selectedTeams.includes(team);
+                  const teamColors = {
+                    'University of Southern California': 'border-red-600 bg-red-50 text-red-700',
+                    'University of California': 'border-navy-600 bg-navy-50 text-navy-700',
+                    'University of California-Los Angeles': 'border-sky-600 bg-sky-50 text-sky-700',
+                    'Stanford University': 'border-red-700 bg-red-50 text-red-800',
+                    'Pepperdine University': 'border-orange-600 bg-orange-50 text-orange-700',
+                    'University of the Pacific': 'border-emerald-600 bg-emerald-50 text-emerald-700'
+                  };
+                  
+                  return (
+                    <button
+                      key={team}
+                      onClick={() => toggleTeamSelection(team)}
+                      className={`relative p-3 rounded-xl border-2 transition-all duration-200 text-left ${
+                        isSelected 
+                          ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-md scale-105' 
+                          : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300 hover:bg-gray-100'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium">
+                          {team.replace('University of Southern California', 'USC')
+                              .replace('University of California-Los Angeles', 'UCLA')
+                              .replace('University of California', 'UC Berkeley')}
+                        </span>
+                        {isSelected && (
+                          <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+              {/* Date Range */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-4 flex items-center">
+                  <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Date Range
+                </h4>
+                
+                {/* Quick Preset Buttons */}
+                <div className="mb-4">
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setDateRange({ start: new Date('2024-01-01'), end: new Date('2024-12-31') })}
+                      className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                        dateRange.start.getFullYear() === 2024 && dateRange.end.getFullYear() === 2024 &&
+                        dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                      }`}
+                    >
+                      2024 Season
+                    </button>
+                    <button
+                      onClick={() => setDateRange({ start: new Date('2023-01-01'), end: new Date('2023-12-31') })}
+                      className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                        dateRange.start.getFullYear() === 2023 && dateRange.end.getFullYear() === 2023 &&
+                        dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                      }`}
+                    >
+                      2023 Season
+                    </button>
+                    <button
+                      onClick={() => setDateRange({ start: new Date('2019-01-01'), end: new Date('2024-12-31') })}
+                      className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                        dateRange.start.getFullYear() === 2019 && dateRange.end.getFullYear() === 2024 &&
+                        dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                          ? 'bg-blue-600 text-white shadow-lg'
+                          : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                      }`}
+                    >
+                      Recent Years
+                    </button>
+                    <button
+                      onClick={() => setDateRange({ start: new Date('2008-01-01'), end: new Date('2024-12-31') })}
+                      className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                        dateRange.start.getFullYear() === 2008 && dateRange.end.getFullYear() === 2024 &&
+                        dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                          ? 'bg-gray-700 text-white shadow-lg'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      All Years
+                    </button>
+                  </div>
+                </div>
+
+                {/* Custom Date Display */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      From Date
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                        <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <DatePicker
+                        selected={dateRange.start}
+                        onChange={(date) => setDateRange(prev => ({ ...prev, start: date }))}
+                        customInput={
+                          <input
+                            className="custom-date-input start-date"
+                            readOnly
+                          />
+                        }
+                        dateFormat="MMMM d, yyyy"
+                        maxDate={new Date()}
+                        minDate={new Date('2008-01-01')}
+                        showYearDropdown
+                        showMonthDropdown
+                        dropdownMode="select"
+                        placeholderText="Select start date"
+                      />
+                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/10 to-indigo-500/10 pointer-events-none"></div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      To Date
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                        <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <DatePicker
+                        selected={dateRange.end}
+                        onChange={(date) => setDateRange(prev => ({ ...prev, end: date }))}
+                        customInput={
+                          <input
+                            className="custom-date-input end-date"
+                            readOnly
+                          />
+                        }
+                        dateFormat="MMMM d, yyyy"
+                        maxDate={new Date()}
+                        minDate={dateRange.start}
+                        showYearDropdown
+                        showMonthDropdown
+                        dropdownMode="select"
+                        placeholderText="Select end date"
+                      />
+                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 pointer-events-none"></div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Date Range Display */}
+                <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600 font-medium">Selected Range:</span>
+                    <span className="text-blue-700 font-semibold">
+                      {dateRange.start.toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                      })} - {dateRange.end.toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        year: 'numeric' 
+                      })}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Chart */}
+              {rankingLoading && selectedTeams.length > 0 && (
+                <div className="flex justify-center py-8">
+                  <div className="flex items-center space-x-2 text-blue-600">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                    <span className="text-sm font-medium">Loading ranking history...</span>
+                  </div>
+                </div>
+              )}
+
+              {rankingData.length > 0 && (
+                <div className="h-96 w-full">
+                  <Line data={prepareChartData()} options={chartOptions} />
+                </div>
+              )}
+
+              {/* No Data Message */}
+              {!rankingLoading && rankingData.length === 0 && selectedTeams.length > 0 && (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">
+                    No ranking data found for the selected teams and date range.
+                  </p>
+                </div>
+              )}
+
+              {/* No Teams Selected Message */}
+              {selectedTeams.length === 0 && (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">
+                    Select one or more teams above to view their ranking history.
+                  </p>
+                </div>
+              )}
+            </div>
         </div>
       </div>
 
