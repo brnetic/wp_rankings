@@ -37,12 +37,10 @@ const WaterPoloMatrix = () => {
   const [rankingLoading, setRankingLoading] = useState(false);
   const [selectedTeams, setSelectedTeams] = useState([
     'University of Southern California',
-    'University of California',
-    'University of California-Los Angeles',
-    'Stanford University'
+    'University of California-Los Angeles'
   ]);
   const [dateRange, setDateRange] = useState({
-    start: new Date('2008-01-01'),
+    start: new Date('2024-01-01'),
     end: new Date('2024-12-31')
   });
 
@@ -284,6 +282,14 @@ const WaterPoloMatrix = () => {
     // Get unique dates and sort them
     const dates = [...new Set(rankingData.map(item => item.date))].sort();
     
+    // Team name mapping for API calls - mapping from full names to API expected names
+    const teamNameMapping = {
+      "University of California, San Diego": "University of California-San Diego",
+      "University of California, Davis": "University of California-Davis", 
+      "University of California, Santa Barbara": "University of California-Santa Barbara",
+      "University of California, Irvine": "University of California-Irvine"
+    };
+    
     // Team colors
     const teamColors = {
       'University of Southern California': '#DC2626', // Red-600
@@ -291,28 +297,77 @@ const WaterPoloMatrix = () => {
       'University of California-Los Angeles': '#0284C7', // Sky-600
       'Stanford University': '#B91C1C', // Red-700
       'Pepperdine University': '#EA580C', // Orange-600
-      'University of the Pacific': '#059669' // Emerald-600
+      'University of the Pacific': '#059669', // Emerald-600
+      'University of California-Irvine': '#7C3AED', // Violet-600
+      'University of California-Santa Barbara': '#DB2777', // Pink-600
+      'Long Beach State University': '#0D9488', // Teal-600
+      'University of California-Davis': '#65A30D', // Lime-600
+      'University of California-San Diego': '#2563EB', // Blue-600
+      'Princeton University': '#F59E0B', // Amber-500
+      'Fordham University': '#6366F1', // Indigo-500
+      'California Baptist University': '#8B5CF6', // Purple-500
+      'Harvard University': '#EF4444' // Red-500
+    };
+
+    // Color palette for additional teams
+    const colorPalette = [
+      '#DC2626', '#1E40AF', '#0284C7', '#B91C1C', '#EA580C', '#059669',
+      '#7C3AED', '#DB2777', '#0D9488', '#65A30D', '#2563EB', '#F59E0B',
+      '#6366F1', '#8B5CF6', '#EF4444', '#10B981', '#F97316', '#3B82F6',
+      '#8B5A2B', '#EC4899', '#14B8A6', '#84CC16', '#6366F1', '#A855F7',
+      '#F43F5E', '#06B6D4', '#EAB308', '#22C55E', '#F472B6', '#64748B'
+    ];
+
+    // Function to get color for a team
+    const getTeamColor = (team, index) => {
+      if (teamColors[team]) {
+        return teamColors[team];
+      }
+      // Use color palette for teams not in the predefined colors
+      return colorPalette[index % colorPalette.length];
     };
 
     // Create datasets for each team
-    const datasets = selectedTeams.map(team => {
-      const teamData = rankingData.filter(item => item.team_name === team);
+    const datasets = selectedTeams.map((displayTeam, index) => {
+      // Get the API team name for data lookup
+      const apiTeamName = teamNameMapping[displayTeam] || displayTeam;
+      const teamData = rankingData.filter(item => item.team_name === apiTeamName);
+      
+      console.log(`Team: ${displayTeam}, API Name: ${apiTeamName}, Data found:`, teamData.length);
+      
       const dataPoints = dates.map(date => {
         const entry = teamData.find(item => item.date === date);
         return entry ? entry.rank : null;
       });
 
+      const teamColor = getTeamColor(apiTeamName, index);
+
       return {
-        label: team.replace('University of Southern California', 'USC')
-                  .replace('University of California-Los Angeles', 'UCLA')
-                  .replace('University of California', 'Berkeley'),
+        label: displayTeam
+          .replace('University of Southern California', 'USC')
+          .replace('University of California-Los Angeles', 'UCLA')
+          .replace('University of California, Irvine', 'UC Irvine')
+          .replace('University of California, Santa Barbara', 'UC Santa Barbara')
+          .replace('University of California, Davis', 'UC Davis')
+          .replace('University of California, San Diego', 'UC San Diego')
+          .replace('University of California', 'UC Berkeley')
+          .replace('Stanford University', 'Stanford')
+          .replace('Pepperdine University', 'Pepperdine')
+          .replace('University of the Pacific', 'Pacific')
+          .replace('Long Beach State University', 'Long Beach State')
+          .replace('Princeton University', 'Princeton')
+          .replace('Fordham University', 'Fordham')
+          .replace('California Baptist University', 'Cal Baptist')
+          .replace('Harvard University', 'Harvard'),
         data: dataPoints,
-        borderColor: teamColors[team] || '#374151',
-        backgroundColor: teamColors[team] || '#374151',
+        borderColor: teamColor,
+        backgroundColor: teamColor,
         fill: false,
         tension: 0.1,
-        pointRadius: 3,
-        pointHoverRadius: 6,
+        pointRadius: 4,
+        pointHoverRadius: 8,
+        pointBorderWidth: 2,
+        pointBorderColor: '#ffffff',
         spanGaps: true
       };
     });
@@ -365,12 +420,15 @@ const WaterPoloMatrix = () => {
           text: 'Ranking'
         },
         reverse: true, // This inverts the Y-axis (rank 1 at top)
-        min: 1,
-        max: 21,
+        min: 0.5,
+        max: 21.5,
         ticks: {
           stepSize: 1,
           callback: function(value) {
-            return value === 21 ? 'UR' : value;
+            // Only show integer values
+            if (value === 21) return 'UR';
+            if (value < 1) return '';
+            return Math.floor(value);
           }
         }
       }
@@ -406,12 +464,27 @@ const WaterPoloMatrix = () => {
     try {
       setRankingLoading(true);
       const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://wpserver.onrender.com';
-      const teamNamesStr = teams.join(',');
+      
+      // Team name mapping for API calls - mapping from full names to API expected names
+      const teamNameMapping = {
+        "University of California, San Diego": "University of California-San Diego",
+        "University of California, Davis": "University of California-Davis", 
+        "University of California, Santa Barbara": "University of California-Santa Barbara",
+        "University of California, Irvine": "University of California-Irvine"
+      };
+      
+      // Map team names to API expected names
+      const mappedTeams = teams.map(team => teamNameMapping[team] || team);
+      const teamNamesStr = mappedTeams.join(',');
+      
       const startDate = dateRange.start.toISOString().split('T')[0];
       const endDate = dateRange.end.toISOString().split('T')[0];
       const url = `${BASE_URL}/rankings/${encodeURIComponent(teamNamesStr)}/${startDate}/${endDate}`;
       
       console.log('Fetching ranking history from:', url);
+      console.log('Original teams:', teams);
+      console.log('Mapped teams:', mappedTeams);
+      
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -435,7 +508,16 @@ const WaterPoloMatrix = () => {
     'University of California-Los Angeles',
     'Stanford University',
     'Pepperdine University',
-    'University of the Pacific'
+    'University of the Pacific',
+    'University of California, Irvine',
+    'University of California, Santa Barbara',
+    'Long Beach State University',
+    'University of California, Davis',
+    'University of California, San Diego',
+    'Princeton University',
+    'Fordham University',
+    'California Baptist University',
+    'Harvard University'
   ];
 
   // Auto-load ranking history on component mount for pre-selected teams
@@ -753,45 +835,135 @@ const WaterPoloMatrix = () => {
           <div className="space-y-6">
             {/* Team Selection */}
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-3">Select Teams:</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {availableTeams.map(team => {
-                  const isSelected = selectedTeams.includes(team);
-                  const teamColors = {
-                    'University of Southern California': 'border-red-600 bg-red-50 text-red-700',
-                    'University of California': 'border-navy-600 bg-navy-50 text-navy-700',
-                    'University of California-Los Angeles': 'border-sky-600 bg-sky-50 text-sky-700',
-                    'Stanford University': 'border-red-700 bg-red-50 text-red-800',
-                    'Pepperdine University': 'border-orange-600 bg-orange-50 text-orange-700',
-                    'University of the Pacific': 'border-emerald-600 bg-emerald-50 text-emerald-700'
-                  };
-                  
-                  return (
-                    <button
-                      key={team}
-                      onClick={() => toggleTeamSelection(team)}
-                      className={`relative p-3 rounded-xl border-2 transition-all duration-200 text-left ${
-                        isSelected 
-                          ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-md scale-105' 
-                          : 'border-gray-200 bg-gray-50 text-gray-600 hover:border-gray-300 hover:bg-gray-100'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">
-                          {team.replace('University of Southern California', 'USC')
-                              .replace('University of California-Los Angeles', 'UCLA')
-                              .replace('University of California', 'UC Berkeley')}
+              <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                Select Teams
+              </h4>
+              
+              {/* Selected Teams Display */}
+              {selectedTeams.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex flex-wrap gap-2">
+                    {selectedTeams.map(team => (
+                      <div
+                        key={team}
+                        className="inline-flex items-center px-3 py-2 rounded-full text-sm bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-800 border border-blue-200 shadow-sm hover:shadow-md transition-all duration-200"
+                      >
+                        <span className="mr-2 font-medium">
+                          {team
+                            .replace('University of Southern California', 'USC')
+                            .replace('University of California-Los Angeles', 'UCLA')
+                            .replace('University of California, Irvine', 'UC Irvine')
+                            .replace('University of California, Santa Barbara', 'UC Santa Barbara')
+                            .replace('University of California, Davis', 'UC Davis')
+                            .replace('University of California, San Diego', 'UC San Diego')
+                            .replace('University of California', 'UC Berkeley')
+                            .replace('Stanford University', 'Stanford')
+                            .replace('Pepperdine University', 'Pepperdine')
+                            .replace('University of the Pacific', 'Pacific')
+                            .replace('Long Beach State University', 'Long Beach State')
+                            .replace('Princeton University', 'Princeton')
+                            .replace('Fordham University', 'Fordham')
+                            .replace('California Baptist University', 'Cal Baptist')
+                            .replace('Harvard University', 'Harvard')
+                          }
                         </span>
-                        {isSelected && (
-                          <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        <button
+                          onClick={() => toggleTeamSelection(team)}
+                          className="ml-1 p-1 rounded-full text-blue-600 hover:text-white hover:bg-blue-600 focus:outline-none transition-all duration-200"
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                           </svg>
-                        )}
+                        </button>
                       </div>
-                    </button>
-                  );
-                })}
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Enhanced Dropdown Selector */}
+              <div className="relative group">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                  <svg className="w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                </div>
+                
+                <select
+                  value=""
+                  onChange={(e) => {
+                    if (e.target.value && !selectedTeams.includes(e.target.value)) {
+                      toggleTeamSelection(e.target.value);
+                    }
+                    e.target.value = ''; // Reset dropdown
+                  }}
+                  className="w-full pl-12 pr-12 py-4 bg-white border-2 border-gray-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 cursor-pointer hover:border-blue-300 hover:shadow-md transition-all duration-200 appearance-none text-base font-medium"
+                >
+                  <option value="" disabled className="text-gray-500">
+                    {selectedTeams.length === 0 ? 'Choose teams to track...' : 'Add another team...'}
+                  </option>
+                  {availableTeams
+                    .filter(team => !selectedTeams.includes(team))
+                    .map(team => (
+                      <option key={team} value={team} className="py-2">
+                        {team
+                          .replace('University of Southern California', 'USC')
+                          .replace('University of California-Los Angeles', 'UCLA')
+                          .replace('University of California, Irvine', 'UC Irvine')
+                          .replace('University of California, Santa Barbara', 'UC Santa Barbara')
+                          .replace('University of California, Davis', 'UC Davis')
+                          .replace('University of California, San Diego', 'UC San Diego')
+                          .replace('University of California', 'UC Berkeley')
+                          .replace('Stanford University', 'Stanford')
+                          .replace('Pepperdine University', 'Pepperdine')
+                          .replace('University of the Pacific', 'Pacific')
+                          .replace('Long Beach State University', 'Long Beach State')
+                          .replace('Princeton University', 'Princeton')
+                          .replace('Fordham University', 'Fordham')
+                          .replace('California Baptist University', 'Cal Baptist')
+                          .replace('Harvard University', 'Harvard')
+                        }
+                      </option>
+                    ))
+                  }
+                </select>
+                
+                {/* Enhanced dropdown arrow */}
+                <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                  <div className="p-1 rounded-full bg-gray-100 group-focus-within:bg-blue-100 transition-colors">
+                    <svg className="w-4 h-4 text-gray-500 group-focus-within:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Subtle background gradient */}
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/10 to-indigo-500/10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
               </div>
+
+              {/* Enhanced Clear All Button */}
+              {selectedTeams.length > 0 && (
+                <div className="mt-4 flex items-center justify-between">
+                  <span className="text-xs text-gray-500 font-medium">
+                    {selectedTeams.length} team{selectedTeams.length !== 1 ? 's' : ''} selected
+                  </span>
+                  <button
+                    onClick={() => {
+                      setSelectedTeams([]);
+                      setRankingData([]);
+                    }}
+                    className="inline-flex items-center px-3 py-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg font-medium transition-all duration-200 group"
+                  >
+                    <svg className="w-4 h-4 mr-1 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Clear all teams
+                  </button>
+                </div>
+              )}
             </div>
 
               {/* Date Range */}
