@@ -30,6 +30,7 @@ const WaterPoloMatrix = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [matchesModal, setMatchesModal] = useState({ open: false, matches: [], loading: false, rowRank: null, colRank: null });
+  const [gender, setGender] = useState('MWP'); // 'MWP' for Men's, 'WWP' for Women's
 
   // Ranking history states
   const [showRankingHistory, setShowRankingHistory] = useState(true);
@@ -43,6 +44,21 @@ const WaterPoloMatrix = () => {
     start: new Date('2024-01-01'),
     end: new Date('2024-12-31')
   });
+
+  // Update date range when gender changes
+  useEffect(() => {
+    if (gender === 'WWP') {
+      setDateRange({
+        start: new Date('2025-01-01'),
+        end: new Date('2025-06-01')
+      });
+    } else {
+      setDateRange({
+        start: new Date('2024-01-01'),
+        end: new Date('2024-12-31')
+      });
+    }
+  }, [gender]);
 
   // State to hold fetched data
   const [headers, setHeaders] = useState([]);  // ["1","2",…,"20","unranked"]
@@ -88,7 +104,7 @@ const WaterPoloMatrix = () => {
         setError(null);
         
         const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://wpserver.onrender.com';
-        const json = await fetchWithCache(`${BASE_URL}/api/MWP/matrix`);
+        const json = await fetchWithCache(`${BASE_URL}/api/${gender}/matrix`);
         
         console.log('Received data:', json); // Debug log
         
@@ -105,7 +121,7 @@ const WaterPoloMatrix = () => {
     };
 
     fetchData();
-  }, []);
+  }, [gender]); // Re-fetch when gender changes
 
   // Fetch matches for specific cell
   const fetchMatches = async (rowRank, colRank) => {
@@ -121,21 +137,21 @@ const WaterPoloMatrix = () => {
         error: null 
       }));
       
-      // Convert unranked to 21 for API call
+      // Convert unranked to appropriate number for API call
       let apiRowRank = rowRank;
       let apiColRank = colRank;
       
       if(colRank === "unranked"){
-        apiColRank = 21;
+        apiColRank = gender === 'WWP' ? 26 : 21;
       }
       if(rowRank === 'unranked'){
-        apiRowRank = 21;
+        apiRowRank = gender === 'WWP' ? 26 : 21;
       }
       
       console.log('API call with ranks:', apiRowRank, 'vs', apiColRank); // Debug log
       
       const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://wpserver.onrender.com';
-      const json = await fetchWithCache(`${BASE_URL}/api/MWP/matches/${apiRowRank}/${apiColRank}`);
+      const json = await fetchWithCache(`${BASE_URL}/api/${gender}/matches/${apiRowRank}/${apiColRank}`);
       console.log('Received matches:', json); // Debug log
       
       setMatchesModal({
@@ -163,7 +179,7 @@ const WaterPoloMatrix = () => {
       setRankingLoading(true);
       const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://wpserver.onrender.com';
       const teamNamesStr = selectedTeams.join(',');
-      const url = `${BASE_URL}/MWP/rankings/${encodeURIComponent(teamNamesStr)}/${dateRange.start}/${dateRange.end}`;
+      const url = `${BASE_URL}/${gender}/rankings/${encodeURIComponent(teamNamesStr)}/${dateRange.start}/${dateRange.end}`;
       
       console.log('Fetching ranking history from:', url);
       const response = await fetch(url);
@@ -337,7 +353,7 @@ const WaterPoloMatrix = () => {
       
       const dataPoints = dates.map(date => {
         const entry = teamData.find(item => item.date === date);
-        return entry ? entry.rank : 22; // Use 22 for unranked teams instead of null
+        return entry ? entry.rank : (gender === 'WWP' ? 27 : 22); // Use 27 for unranked women's teams, 22 for men's
       });
 
       const teamColor = getTeamColor(apiTeamName, index);
@@ -397,7 +413,7 @@ const WaterPoloMatrix = () => {
           },
           label: function(context) {
             const rank = context.parsed.y;
-            const rankDisplay = rank === 22 ? 'Unranked' : `Rank ${rank}`;
+            const rankDisplay = (gender === 'WWP' && rank === 27) || (gender === 'MWP' && rank === 22) ? 'Unranked' : `Rank ${rank}`;
             return `${context.dataset.label}: ${rankDisplay}`;
           }
         }
@@ -422,12 +438,12 @@ const WaterPoloMatrix = () => {
         },
         reverse: true, // This inverts the Y-axis (rank 1 at top)
         min: 0.5,
-        max: 22.5, // Extended to accommodate unranked position
+        max: gender === 'WWP' ? 27.5 : 22.5, // Extended to accommodate unranked position
         ticks: {
           stepSize: 1,
           callback: function(value) {
             // Only show integer values
-            if (value === 22) return 'UR';
+            if ((gender === 'WWP' && value === 27) || (gender === 'MWP' && value === 22)) return 'UR';
             if (value === 21) return 'UR';
             if (value < 1) return '';
             return Math.floor(value);
@@ -481,7 +497,7 @@ const WaterPoloMatrix = () => {
       
       const startDate = dateRange.start.toISOString().split('T')[0];
       const endDate = dateRange.end.toISOString().split('T')[0];
-      const url = `${BASE_URL}/MWP/rankings/${encodeURIComponent(teamNamesStr)}/${startDate}/${endDate}`;
+      const url = `${BASE_URL}/${gender}/rankings/${encodeURIComponent(teamNamesStr)}/${startDate}/${endDate}`;
       
       console.log('Fetching ranking history from:', url);
       console.log('Original teams:', teams);
@@ -504,7 +520,7 @@ const WaterPoloMatrix = () => {
   };
 
   // Available teams for selection
-  const availableTeams = [
+  const allTeams = [
     'University of Southern California',
     'University of California',
     'University of California-Los Angeles',
@@ -522,12 +538,24 @@ const WaterPoloMatrix = () => {
     'Harvard University'
   ];
 
+  // Teams that don't have women's water polo programs
+  const mensOnlyTeams = [
+    'California Baptist University',
+    'Fordham University',
+    'Pepperdine University'
+  ];
+
+  // Filter teams based on selected gender
+  const availableTeams = gender === 'WWP' 
+    ? allTeams.filter(team => !mensOnlyTeams.includes(team))
+    : allTeams;
+
   // Auto-load ranking history on component mount for pre-selected teams
   useEffect(() => {
     if (selectedTeams.length > 0) {
       fetchRankingHistoryWithTeams(selectedTeams);
     }
-  }, [dateRange]); // Re-fetch when date range changes
+  }, [dateRange, gender]); // Re-fetch when date range or gender changes
 
   // Loading state
   if (loading) {
@@ -563,17 +591,71 @@ const WaterPoloMatrix = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
+      {/* Navigation Header */}
+      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4">
+          <div className="flex flex-col items-center space-y-4 md:flex-row md:justify-between md:space-y-0">
+            <div className="text-center md:text-left">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                College Sports Analytics
+              </h1>
+              <p className="text-gray-600 text-sm md:text-base">
+                Statistical analysis and probability modeling for collegiate athletics
+              </p>
+            </div>
+            
+            {/* Sports & Division Selector */}
+            <div className="flex flex-col items-center space-y-3 md:flex-row md:space-y-0 md:space-x-4">
+              {/* Sport Selector - Future expansion */}
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium text-gray-700 whitespace-nowrap">Sport:</span>
+                <div className="bg-gray-100 rounded-xl px-4 py-2 shadow-inner">
+                  <span className="text-sm font-semibold text-gray-800">Water Polo</span>
+                </div>
+              </div>
+              
+              {/* Division Selector */}
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium text-gray-700 whitespace-nowrap">Division:</span>
+                <div className="flex items-center space-x-1 bg-gray-100 rounded-xl p-1 shadow-inner">
+                  <button
+                    onClick={() => setGender('MWP')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 text-sm ${
+                      gender === 'MWP'
+                        ? 'bg-blue-600 text-white shadow-md transform scale-105'
+                        : 'text-gray-700 hover:bg-white hover:shadow-sm'
+                    }`}
+                  >
+                    Men's
+                  </button>
+                  <button
+                    onClick={() => setGender('WWP')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 text-sm ${
+                      gender === 'WWP'
+                        ? 'bg-pink-600 text-white shadow-md transform scale-105'
+                        : 'text-gray-700 hover:bg-white hover:shadow-sm'
+                    }`}
+                  >
+                    Women's
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
-      <div className="text-center py-8 md:py-16 px-6">
-        <h1 className="text-3xl md:text-5xl font-thin text-gray-900 mb-4 tracking-tight">
-          Men's College Water Polo 2010-2024
-        </h1>
-        <h2 className="text-lg md:text-2xl font-light text-gray-600 mb-8">
-          Win probabilities for differently ranked D1 water polo teams for seasons 2010 to 2024.
+      <div className="text-center py-8 md:py-12 px-6">
+        <h2 className="text-3xl md:text-4xl font-thin text-gray-900 mb-4 tracking-tight">
+          {gender === 'MWP' ? "Men's" : "Women's"} Division • {gender === 'MWP' ? '2010-2024' : '2025'}
         </h2>
-        <p className="text-sm md:text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
-          Matrix showing win probabilities between differently ranked teams,
-          based on 2815 games played. Click on any cell to view specific matches.
+        <p className="text-lg md:text-xl font-light text-gray-600 mb-6">
+          Win probabilities for differently ranked D1 water polo teams
+        </p>
+        <p className="text-sm md:text-base text-gray-500 max-w-2xl mx-auto leading-relaxed">
+          Interactive matrix showing win probabilities between differently ranked teams,
+          based on {gender === 'MWP' ? '2,815' : 'current season'} games played. Click on any cell to view specific matches.
         </p>
       </div>
 
@@ -980,50 +1062,79 @@ const WaterPoloMatrix = () => {
                 {/* Quick Preset Buttons */}
                 <div className="mb-4">
                   <div className="flex flex-wrap gap-2">
-                    <button
-                      onClick={() => setDateRange({ start: new Date('2024-01-01'), end: new Date('2024-12-31') })}
-                      className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                        dateRange.start.getFullYear() === 2024 && dateRange.end.getFullYear() === 2024 &&
-                        dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
-                          ? 'bg-blue-600 text-white shadow-lg'
-                          : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                      }`}
-                    >
-                      2024 Season
-                    </button>
-                    <button
-                      onClick={() => setDateRange({ start: new Date('2023-01-01'), end: new Date('2023-12-31') })}
-                      className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                        dateRange.start.getFullYear() === 2023 && dateRange.end.getFullYear() === 2023 &&
-                        dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
-                          ? 'bg-blue-600 text-white shadow-lg'
-                          : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                      }`}
-                    >
-                      2023 Season
-                    </button>
-                    <button
-                      onClick={() => setDateRange({ start: new Date('2019-01-01'), end: new Date('2024-12-31') })}
-                      className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                        dateRange.start.getFullYear() === 2019 && dateRange.end.getFullYear() === 2024 &&
-                        dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
-                          ? 'bg-blue-600 text-white shadow-lg'
-                          : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                      }`}
-                    >
-                      Recent Years
-                    </button>
-                    <button
-                      onClick={() => setDateRange({ start: new Date('2008-01-01'), end: new Date('2024-12-31') })}
-                      className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                        dateRange.start.getFullYear() === 2008 && dateRange.end.getFullYear() === 2024 &&
-                        dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
-                          ? 'bg-gray-700 text-white shadow-lg'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      All Years
-                    </button>
+                    {gender === 'MWP' ? (
+                      <>
+                        <button
+                          onClick={() => setDateRange({ start: new Date('2024-01-01'), end: new Date('2024-12-31') })}
+                          className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                            dateRange.start.getFullYear() === 2024 && dateRange.end.getFullYear() === 2024 &&
+                            dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                              ? 'bg-blue-600 text-white shadow-lg'
+                              : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                          }`}
+                        >
+                          2024 Season
+                        </button>
+                        <button
+                          onClick={() => setDateRange({ start: new Date('2023-01-01'), end: new Date('2023-12-31') })}
+                          className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                            dateRange.start.getFullYear() === 2023 && dateRange.end.getFullYear() === 2023 &&
+                            dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                              ? 'bg-blue-600 text-white shadow-lg'
+                              : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                          }`}
+                        >
+                          2023 Season
+                        </button>
+                        <button
+                          onClick={() => setDateRange({ start: new Date('2019-01-01'), end: new Date('2024-12-31') })}
+                          className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                            dateRange.start.getFullYear() === 2019 && dateRange.end.getFullYear() === 2024 &&
+                            dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                              ? 'bg-blue-600 text-white shadow-lg'
+                              : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                          }`}
+                        >
+                          Recent Years
+                        </button>
+                        <button
+                          onClick={() => setDateRange({ start: new Date('2008-01-01'), end: new Date('2024-12-31') })}
+                          className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                            dateRange.start.getFullYear() === 2008 && dateRange.end.getFullYear() === 2024 &&
+                            dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                              ? 'bg-gray-700 text-white shadow-lg'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          All Years
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => setDateRange({ start: new Date('2025-01-01'), end: new Date('2025-06-01') })}
+                          className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                            dateRange.start.getFullYear() === 2025 && dateRange.end.getFullYear() === 2025 &&
+                            dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 5
+                              ? 'bg-pink-600 text-white shadow-lg'
+                              : 'bg-pink-50 text-pink-600 hover:bg-pink-100'
+                          }`}
+                        >
+                          2025 Season
+                        </button>
+                        <button
+                          onClick={() => setDateRange({ start: new Date('2025-01-01'), end: new Date('2025-12-31') })}
+                          className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                            dateRange.start.getFullYear() === 2025 && dateRange.end.getFullYear() === 2025 &&
+                            dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                              ? 'bg-pink-600 text-white shadow-lg'
+                              : 'bg-pink-50 text-pink-600 hover:bg-pink-100'
+                          }`}
+                        >
+                          Full 2025
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -1050,7 +1161,7 @@ const WaterPoloMatrix = () => {
                         }
                         dateFormat="MMMM d, yyyy"
                         maxDate={new Date()}
-                        minDate={new Date('2008-01-01')}
+                        minDate={gender === 'WWP' ? new Date('2025-01-01') : new Date('2008-01-01')}
                         showYearDropdown
                         showMonthDropdown
                         dropdownMode="select"
