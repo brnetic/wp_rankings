@@ -1123,15 +1123,37 @@ const WaterPoloMatrix = () => {
                           2025 Season
                         </button>
                         <button
-                          onClick={() => setDateRange({ start: new Date('2025-01-01'), end: new Date('2025-12-31') })}
+                          onClick={() => setDateRange({ start: new Date('2024-01-01'), end: new Date('2024-12-31') })}
                           className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                            dateRange.start.getFullYear() === 2025 && dateRange.end.getFullYear() === 2025 &&
+                            dateRange.start.getFullYear() === 2024 && dateRange.end.getFullYear() === 2024 &&
                             dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
                               ? 'bg-pink-600 text-white shadow-lg'
                               : 'bg-pink-50 text-pink-600 hover:bg-pink-100'
                           }`}
                         >
-                          Full 2025
+                          2024 Season
+                        </button>
+                        <button
+                          onClick={() => setDateRange({ start: new Date('2019-01-01'), end: new Date('2025-12-31') })}
+                          className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                            dateRange.start.getFullYear() === 2019 && dateRange.end.getFullYear() === 2025 &&
+                            dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                              ? 'bg-pink-600 text-white shadow-lg'
+                              : 'bg-pink-50 text-pink-600 hover:bg-pink-100'
+                          }`}
+                        >
+                          Recent Years
+                        </button>
+                        <button
+                          onClick={() => setDateRange({ start: new Date('2008-01-01'), end: new Date('2025-12-31') })}
+                          className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                            dateRange.start.getFullYear() === 2008 && dateRange.end.getFullYear() === 2025 &&
+                            dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                              ? 'bg-gray-700 text-white shadow-lg'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          }`}
+                        >
+                          All Years (2008-2025)
                         </button>
                       </>
                     )}
@@ -1161,7 +1183,7 @@ const WaterPoloMatrix = () => {
                         }
                         dateFormat="MMMM d, yyyy"
                         maxDate={new Date()}
-                        minDate={gender === 'WWP' ? new Date('2025-01-01') : new Date('2008-01-01')}
+                        minDate={new Date('2008-01-01')}
                         showYearDropdown
                         showMonthDropdown
                         dropdownMode="select"
