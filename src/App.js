@@ -88,7 +88,7 @@ const WaterPoloMatrix = () => {
         setError(null);
         
         const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://wpserver.onrender.com';
-        const json = await fetchWithCache(`${BASE_URL}/api/matrix`);
+        const json = await fetchWithCache(`${BASE_URL}/api/MWP/matrix`);
         
         console.log('Received data:', json); // Debug log
         
@@ -135,7 +135,7 @@ const WaterPoloMatrix = () => {
       console.log('API call with ranks:', apiRowRank, 'vs', apiColRank); // Debug log
       
       const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://wpserver.onrender.com';
-      const json = await fetchWithCache(`${BASE_URL}/api/matches/${apiRowRank}/${apiColRank}`);
+      const json = await fetchWithCache(`${BASE_URL}/api/MWP/matches/${apiRowRank}/${apiColRank}`);
       console.log('Received matches:', json); // Debug log
       
       setMatchesModal({
@@ -163,7 +163,7 @@ const WaterPoloMatrix = () => {
       setRankingLoading(true);
       const BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://wpserver.onrender.com';
       const teamNamesStr = selectedTeams.join(',');
-      const url = `${BASE_URL}/rankings/${encodeURIComponent(teamNamesStr)}/${dateRange.start}/${dateRange.end}`;
+      const url = `${BASE_URL}/MWP/rankings/${encodeURIComponent(teamNamesStr)}/${dateRange.start}/${dateRange.end}`;
       
       console.log('Fetching ranking history from:', url);
       const response = await fetch(url);
