@@ -481,7 +481,7 @@ const WaterPoloMatrix = () => {
       
       const startDate = dateRange.start.toISOString().split('T')[0];
       const endDate = dateRange.end.toISOString().split('T')[0];
-      const url = `${BASE_URL}/rankings/${encodeURIComponent(teamNamesStr)}/${startDate}/${endDate}`;
+      const url = `${BASE_URL}/MWP/rankings/${encodeURIComponent(teamNamesStr)}/${startDate}/${endDate}`;
       
       console.log('Fetching ranking history from:', url);
       console.log('Original teams:', teams);
