@@ -237,7 +237,7 @@ const WaterPoloMatrix = () => {
     const rawNumerator = Math.round(value * delim);
     const fraction = `${rawNumerator}/${delim}`;
     const percent = `${Math.round((rawNumerator / delim) * 100)}%`;
-    const decimal = value === 0 ? '0.0' : value === 1 ? '1.0' : value.toFixed(1);
+    const decimal = value === 0 ? '0.00' : value === 1 ? '1.00' : value.toFixed(2);
     return `${percent} (${fraction}, ${decimal})`;
   };
 
@@ -256,7 +256,7 @@ const WaterPoloMatrix = () => {
       default:
         if (value === 0) return '0';
         if (value === 1) return '1';
-        return value.toFixed(1);
+        return value.toFixed(2);
     }
   };
 
@@ -648,7 +648,7 @@ const WaterPoloMatrix = () => {
       {/* Header */}
       <div className="text-center py-8 md:py-12 px-6">
         <h2 className="text-3xl md:text-4xl font-thin text-gray-900 mb-4 tracking-tight">
-          {gender === 'MWP' ? "Men's" : "Women's"} Division • {gender === 'MWP' ? '2010-2024' : '2025'}
+          {gender === 'MWP' ? "Men's" : "Women's"} Division • {gender === 'MWP' ? '2008-2024' : '2010-2025'}
         </h2>
         <p className="text-lg md:text-xl font-light text-gray-600 mb-6">
           Win probabilities for differently ranked D1 water polo teams
