@@ -58,6 +58,15 @@ const WaterPoloMatrix = () => {
         end: new Date('2024-12-31')
       });
     }
+    
+    // Reset selected teams to default when switching gender
+    setSelectedTeams([
+      'University of California-Los Angeles',
+      'University of Southern California'
+    ]);
+    
+    // Clear ranking data since we're switching divisions
+    setRankingData([]);
   }, [gender]);
 
   // State to hold fetched data
@@ -327,7 +336,17 @@ const WaterPoloMatrix = () => {
       'Santa Clara University': '#BE123C', // Rose-700
       'Loyola Marymount University': '#1D4ED8', // Blue-700
       'United States Naval Academy': '#1E3A8A', // Blue-900
-      'San Jose State University': '#166534' // Green-800
+      'San Jose State University': '#166534', // Green-800
+      'University of Hawaii': '#0891B2', // Cyan-600
+      'Fresno State': '#DC2626', // Red-600
+      'Arizona State University': '#92400E', // Amber-800
+      'Indiana University': '#B91C1C', // Red-700
+      'Wagner College': '#059669', // Emerald-600
+      'University of Michigan': '#1E40AF', // Blue-800
+      'Marist College': '#DC2626', // Red-600
+      'San Diego State University': '#B91C1C', // Red-700
+      'McKendree University': '#7C3AED', // Violet-600
+      'Pomona-Pitzer Colleges': '#0D9488' // Teal-600
     };
 
     // Color palette for additional teams
@@ -384,7 +403,17 @@ const WaterPoloMatrix = () => {
           .replace('Santa Clara University', 'Santa Clara')
           .replace('Loyola Marymount University', 'LMU')
           .replace('United States Naval Academy', 'Navy')
-          .replace('San Jose State University', 'San Jose State'),
+          .replace('San Jose State University', 'San Jose State')
+          .replace('University of Hawaii', 'Hawaii')
+          .replace('Fresno State', 'Fresno State')
+          .replace('Arizona State University', 'Arizona State')
+          .replace('Indiana University', 'Indiana')
+          .replace('Wagner College', 'Wagner')
+          .replace('University of Michigan', 'Michigan')
+          .replace('Marist College', 'Marist')
+          .replace('San Diego State University', 'San Diego State')
+          .replace('McKendree University', 'McKendree')
+          .replace('Pomona-Pitzer Colleges', 'Pomona-Pitzer'),
         data: dataPoints,
         borderColor: teamColor,
         backgroundColor: teamColor,
@@ -550,7 +579,17 @@ const WaterPoloMatrix = () => {
     'Santa Clara University',
     'Harvard University',
     'Loyola Marymount University',
-    'United States Naval Academy'
+    'United States Naval Academy',
+    'University of Hawaii',
+    'Fresno State',
+    'Arizona State University',
+    'Indiana University',
+    'Wagner College',
+    'University of Michigan',
+    'Marist College',
+    'San Diego State University',
+    'McKendree University',
+    'Pomona-Pitzer Colleges'
   ];
 
   // Teams that don't have women's water polo programs
@@ -558,11 +597,8 @@ const WaterPoloMatrix = () => {
     'California Baptist University',
     'Fordham University',
     'Pepperdine University',
-    'Brown University',
     'Santa Clara University',
-    'Loyola Marymount University',
-    'United States Naval Academy',
-    'San Jose State University'
+    'United States Naval Academy'
   ];
 
   // Filter teams based on selected gender
@@ -977,6 +1013,16 @@ const WaterPoloMatrix = () => {
                             .replace('Loyola Marymount University', 'LMU')
                             .replace('United States Naval Academy', 'Navy')
                             .replace('San Jose State University', 'San Jose State')
+                            .replace('University of Hawaii', 'Hawaii')
+                            .replace('Fresno State', 'Fresno State')
+                            .replace('Arizona State University', 'Arizona State')
+                            .replace('Indiana University', 'Indiana')
+                            .replace('Wagner College', 'Wagner')
+                            .replace('University of Michigan', 'Michigan')
+                            .replace('Marist College', 'Marist')
+                            .replace('San Diego State University', 'San Diego State')
+                            .replace('McKendree University', 'McKendree')
+                            .replace('Pomona-Pitzer Colleges', 'Pomona-Pitzer')
                           }
                         </span>
                         <button
@@ -1039,6 +1085,16 @@ const WaterPoloMatrix = () => {
                           .replace('Loyola Marymount University', 'LMU')
                           .replace('United States Naval Academy', 'Navy')
                           .replace('San Jose State University', 'San Jose State')
+                          .replace('University of Hawaii', 'Hawaii')
+                          .replace('Fresno State', 'Fresno State')
+                          .replace('Arizona State University', 'Arizona State')
+                          .replace('Indiana University', 'Indiana')
+                          .replace('Wagner College', 'Wagner')
+                          .replace('University of Michigan', 'Michigan')
+                          .replace('Marist College', 'Marist')
+                          .replace('San Diego State University', 'San Diego State')
+                          .replace('McKendree University', 'McKendree')
+                          .replace('Pomona-Pitzer Colleges', 'Pomona-Pitzer')
                         }
                       </option>
                     ))
