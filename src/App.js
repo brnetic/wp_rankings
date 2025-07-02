@@ -37,8 +37,8 @@ const WaterPoloMatrix = () => {
   const [rankingData, setRankingData] = useState([]);
   const [rankingLoading, setRankingLoading] = useState(false);
   const [selectedTeams, setSelectedTeams] = useState([
-    'University of Southern California',
-    'University of California-Los Angeles'
+    'University of California-Los Angeles',
+    'University of Southern California'
   ]);
   const [dateRange, setDateRange] = useState({
     start: new Date('2024-01-01'),
@@ -322,7 +322,12 @@ const WaterPoloMatrix = () => {
       'Princeton University': '#F59E0B', // Amber-500
       'Fordham University': '#6366F1', // Indigo-500
       'California Baptist University': '#8B5CF6', // Purple-500
-      'Harvard University': '#EF4444' // Red-500
+      'Harvard University': '#EF4444', // Red-500
+      'Brown University': '#92400E', // Amber-800
+      'Santa Clara University': '#BE123C', // Rose-700
+      'Loyola Marymount University': '#1D4ED8', // Blue-700
+      'United States Naval Academy': '#1E3A8A', // Blue-900
+      'San Jose State University': '#166534' // Green-800
     };
 
     // Color palette for additional teams
@@ -362,10 +367,10 @@ const WaterPoloMatrix = () => {
         label: displayTeam
           .replace('University of Southern California', 'USC')
           .replace('University of California-Los Angeles', 'UCLA')
-          .replace('University of California, Irvine', 'UC Irvine')
-          .replace('University of California, Santa Barbara', 'UC Santa Barbara')
-          .replace('University of California, Davis', 'UC Davis')
-          .replace('University of California, San Diego', 'UC San Diego')
+          .replace('University of California-Irvine', 'UC Irvine')
+          .replace('University of California-Santa Barbara', 'UC Santa Barbara')
+          .replace('University of California-Davis', 'UC Davis')
+          .replace('University of California-San Diego', 'UC San Diego')
           .replace('University of California', 'UC Berkeley')
           .replace('Stanford University', 'Stanford')
           .replace('Pepperdine University', 'Pepperdine')
@@ -374,7 +379,12 @@ const WaterPoloMatrix = () => {
           .replace('Princeton University', 'Princeton')
           .replace('Fordham University', 'Fordham')
           .replace('California Baptist University', 'Cal Baptist')
-          .replace('Harvard University', 'Harvard'),
+          .replace('Harvard University', 'Harvard')
+          .replace('Brown University', 'Brown')
+          .replace('Santa Clara University', 'Santa Clara')
+          .replace('Loyola Marymount University', 'LMU')
+          .replace('United States Naval Academy', 'Navy')
+          .replace('San Jose State University', 'San Jose State'),
         data: dataPoints,
         borderColor: teamColor,
         backgroundColor: teamColor,
@@ -521,28 +531,38 @@ const WaterPoloMatrix = () => {
 
   // Available teams for selection
   const allTeams = [
-    'University of Southern California',
-    'University of California',
     'University of California-Los Angeles',
-    'Stanford University',
-    'Pepperdine University',
-    'University of the Pacific',
-    'University of California, Irvine',
-    'University of California, Santa Barbara',
-    'Long Beach State University',
-    'University of California, Davis',
-    'University of California, San Diego',
-    'Princeton University',
+    'University of Southern California',
     'Fordham University',
+    'Stanford University',
+    'Princeton University',
+    'Long Beach State University',
+    'University of the Pacific',
+    'University of California',
     'California Baptist University',
-    'Harvard University'
+    'University of California-Irvine',
+    'San Jose State University',
+    'University of California-San Diego',
+    'Pepperdine University',
+    'University of California-Davis',
+    'University of California-Santa Barbara',
+    'Brown University',
+    'Santa Clara University',
+    'Harvard University',
+    'Loyola Marymount University',
+    'United States Naval Academy'
   ];
 
   // Teams that don't have women's water polo programs
   const mensOnlyTeams = [
     'California Baptist University',
     'Fordham University',
-    'Pepperdine University'
+    'Pepperdine University',
+    'Brown University',
+    'Santa Clara University',
+    'Loyola Marymount University',
+    'United States Naval Academy',
+    'San Jose State University'
   ];
 
   // Filter teams based on selected gender
@@ -939,10 +959,10 @@ const WaterPoloMatrix = () => {
                           {team
                             .replace('University of Southern California', 'USC')
                             .replace('University of California-Los Angeles', 'UCLA')
-                            .replace('University of California, Irvine', 'UC Irvine')
-                            .replace('University of California, Santa Barbara', 'UC Santa Barbara')
-                            .replace('University of California, Davis', 'UC Davis')
-                            .replace('University of California, San Diego', 'UC San Diego')
+                            .replace('University of California-Irvine', 'UC Irvine')
+                            .replace('University of California-Santa Barbara', 'UC Santa Barbara')
+                            .replace('University of California-Davis', 'UC Davis')
+                            .replace('University of California-San Diego', 'UC San Diego')
                             .replace('University of California', 'UC Berkeley')
                             .replace('Stanford University', 'Stanford')
                             .replace('Pepperdine University', 'Pepperdine')
@@ -952,6 +972,11 @@ const WaterPoloMatrix = () => {
                             .replace('Fordham University', 'Fordham')
                             .replace('California Baptist University', 'Cal Baptist')
                             .replace('Harvard University', 'Harvard')
+                            .replace('Brown University', 'Brown')
+                            .replace('Santa Clara University', 'Santa Clara')
+                            .replace('Loyola Marymount University', 'LMU')
+                            .replace('United States Naval Academy', 'Navy')
+                            .replace('San Jose State University', 'San Jose State')
                           }
                         </span>
                         <button
@@ -996,10 +1021,10 @@ const WaterPoloMatrix = () => {
                         {team
                           .replace('University of Southern California', 'USC')
                           .replace('University of California-Los Angeles', 'UCLA')
-                          .replace('University of California, Irvine', 'UC Irvine')
-                          .replace('University of California, Santa Barbara', 'UC Santa Barbara')
-                          .replace('University of California, Davis', 'UC Davis')
-                          .replace('University of California, San Diego', 'UC San Diego')
+                          .replace('University of California-Irvine', 'UC Irvine')
+                          .replace('University of California-Santa Barbara', 'UC Santa Barbara')
+                          .replace('University of California-Davis', 'UC Davis')
+                          .replace('University of California-San Diego', 'UC San Diego')
                           .replace('University of California', 'UC Berkeley')
                           .replace('Stanford University', 'Stanford')
                           .replace('Pepperdine University', 'Pepperdine')
@@ -1009,6 +1034,11 @@ const WaterPoloMatrix = () => {
                           .replace('Fordham University', 'Fordham')
                           .replace('California Baptist University', 'Cal Baptist')
                           .replace('Harvard University', 'Harvard')
+                          .replace('Brown University', 'Brown')
+                          .replace('Santa Clara University', 'Santa Clara')
+                          .replace('Loyola Marymount University', 'LMU')
+                          .replace('United States Naval Academy', 'Navy')
+                          .replace('San Jose State University', 'San Jose State')
                         }
                       </option>
                     ))
