@@ -31,6 +31,7 @@ const WaterPoloMatrix = () => {
   const [error, setError] = useState(null);
   const [matchesModal, setMatchesModal] = useState({ open: false, matches: [], loading: false, rowRank: null, colRank: null });
   const [gender, setGender] = useState('MWP'); // 'MWP' for Men's, 'WWP' for Women's
+  const [activeTab, setActiveTab] = useState('matrix'); // 'matrix' or 'rankings'
 
   // Ranking history states
   const [showRankingHistory, setShowRankingHistory] = useState(true);
@@ -701,92 +702,324 @@ const WaterPoloMatrix = () => {
         </div>
       </div>
 
-      {/* Header */}
-      <div className="text-center py-8 md:py-12 px-6">
-        <h2 className="text-3xl md:text-4xl font-thin text-gray-900 mb-4 tracking-tight">
-          {gender === 'MWP' ? "Men's" : "Women's"} Division • {gender === 'MWP' ? '2008-2024' : '2010-2025'}
-        </h2>
-        <p className="text-lg md:text-xl font-light text-gray-600 mb-6">
-          Win probabilities for differently ranked D1 water polo teams
-        </p>
-        <p className="text-sm md:text-base text-gray-500 max-w-2xl mx-auto leading-relaxed">
-          Interactive matrix showing win probabilities between differently ranked teams,
-          based on {gender === 'MWP' ? '2,815' : 'current season'} games played. Click on any cell to view specific matches.
-        </p>
-      </div>
-
-      {/* Display Mode Toggle */}
-      <div className="max-w-6xl mx-auto px-4 md:px-6 mb-6 md:mb-8">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
-          <h3 className="text-base md:text-lg font-medium text-gray-900 mb-4">Display Format</h3>
-          <div className="flex flex-wrap gap-2 md:gap-3">
+      {/* View Picker - Subtle and Clean */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6 pt-4 pb-2">
+        <div className="flex justify-center">
+          <div className="inline-flex bg-gray-100 rounded-lg p-1 shadow-sm">
             <button
-              onClick={() => setDisplayMode('decimal')}
-              className={`px-3 md:px-4 py-2 rounded-lg font-medium tra</svg>nsition-all text-sm md:text-base ${
-                displayMode === 'decimal'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              onClick={() => setActiveTab('matrix')}
+              className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                activeTab === 'matrix'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
-              Decimal
+              Parity Table
             </button>
             <button
-              onClick={() => setDisplayMode('percentage')}
-              className={`px-3 md:px-4 py-2 rounded-lg font-medium transition-all text-sm md:text-base ${
-                displayMode === 'percentage'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              onClick={() => setActiveTab('rankings')}
+              className={`px-6 py-2 rounded-md text-sm font-medium transition-all ${
+                activeTab === 'rankings'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
-              Percentage
-            </button>
-            <button
-              onClick={() => setDisplayMode('fraction')}
-              className={`px-3 md:px-4 py-2 rounded-lg font-medium transition-all text-sm md:text-base ${
-                displayMode === 'fraction'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Fraction
+              Ranking History
             </button>
           </div>
         </div>
       </div>
 
-      {/* Legend */}
-      <div className="max-w-6xl mx-auto px-4 md:px-6 mb-8 md:mb-12">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
-          <h3 className="text-base md:text-lg font-medium text-gray-900 mb-4">Probability Scale</h3>
-          <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
-            <div className="grid grid-cols-2 md:flex md:items-center gap-3 md:space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 md:w-4 md:h-4 bg-red-500 rounded"></div>
-                <span className="text-xs md:text-sm text-gray-600">0% (Certain Loss)</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 md:w-4 md:h-4 bg-orange-500 rounded"></div>
-                <span className="text-xs md:text-sm text-gray-600">Low (0–30%)</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 md:w-4 md:h-4 bg-yellow-500 rounded"></div>
-                <span className="text-xs md:text-sm text-gray-600">Medium (30–70%)</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 md:w-4 md:h-4 bg-green-500 rounded"></div>
-                <span className="text-xs md:text-sm text-gray-600">High (70–100%)</span>
+      {/* Sport Header */}
+      <div className="text-center py-6 md:py-8 px-6">
+        {activeTab === 'matrix' ? (
+          <>
+            <h2 className="text-3xl md:text-4xl font-thin text-gray-900 mb-4 tracking-tight">
+              {gender === 'MWP' ? "Men's" : "Women's"} Division • {gender === 'MWP' ? '2008-2024' : '2010-2025'}
+            </h2>
+            <p className="text-lg md:text-xl font-light text-gray-600 mb-6">
+              Win probabilities for differently ranked D1 water polo teams
+            </p>
+            <p className="text-sm md:text-base text-gray-500 max-w-2xl mx-auto leading-relaxed">
+              Interactive matrix showing win probabilities between differently ranked teams,
+              based on {gender === 'MWP' ? '2,815' : 'current season'} games played. Click on any cell to view specific matches.
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 className="text-3xl md:text-4xl font-thin text-gray-900 mb-4 tracking-tight">
+              {gender === 'MWP' ? "Men's" : "Women's"} Ranking History
+            </h2>
+            <p className="text-lg md:text-xl font-light text-gray-600 mb-6">
+              Track team rankings over time since {gender === 'MWP' ? '2008' : '2010'}
+            </p>
+            <p className="text-sm md:text-base text-gray-500 max-w-2xl mx-auto leading-relaxed">
+              Interactive charts showing how team rankings have changed over time. 
+              Select teams and date ranges to analyze ranking trends and performance history.
+            </p>
+          </>
+        )}
+      </div>
+
+      {/* Matrix Tab Content */}
+      {activeTab === 'matrix' && (
+        <>
+          {/* Display Mode Toggle */}
+          <div className="max-w-6xl mx-auto px-4 md:px-6 mb-6 md:mb-8">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
+              <h3 className="text-base md:text-lg font-medium text-gray-900 mb-4">Display Format</h3>
+              <div className="flex flex-wrap gap-2 md:gap-3">
+                <button
+                  onClick={() => setDisplayMode('decimal')}
+                  className={`px-3 md:px-4 py-2 rounded-lg font-medium transition-all text-sm md:text-base ${
+                    displayMode === 'decimal'
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Decimal
+                </button>
+                <button
+                  onClick={() => setDisplayMode('percentage')}
+                  className={`px-3 md:px-4 py-2 rounded-lg font-medium transition-all text-sm md:text-base ${
+                    displayMode === 'percentage'
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Percentage
+                </button>
+                <button
+                  onClick={() => setDisplayMode('fraction')}
+                  className={`px-3 md:px-4 py-2 rounded-lg font-medium transition-all text-sm md:text-base ${
+                    displayMode === 'fraction'
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Fraction
+                </button>
               </div>
             </div>
-            <div className="mt-2 md:mt-0">
-              <span className="text-xs md:text-sm text-gray-700">
-                Opacity represents number of the games played
-              </span>
+          </div>
+
+          {/* Legend */}
+          <div className="max-w-6xl mx-auto px-4 md:px-6 mb-8 md:mb-12">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
+              <h3 className="text-base md:text-lg font-medium text-gray-900 mb-4">Probability Scale</h3>
+              <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+                <div className="grid grid-cols-2 md:flex md:items-center gap-3 md:space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 md:w-4 md:h-4 bg-red-500 rounded"></div>
+                    <span className="text-xs md:text-sm text-gray-600">0% (Certain Loss)</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 md:w-4 md:h-4 bg-orange-500 rounded"></div>
+                    <span className="text-xs md:text-sm text-gray-600">Low (0–30%)</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 md:w-4 md:h-4 bg-yellow-500 rounded"></div>
+                    <span className="text-xs md:text-sm text-gray-600">Medium (30–70%)</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 md:w-4 md:h-4 bg-green-500 rounded"></div>
+                    <span className="text-xs md:text-sm text-gray-600">High (70–100%)</span>
+                  </div>
+                </div>
+                <div className="mt-2 md:mt-0">
+                  <span className="text-xs md:text-sm text-gray-700">
+                    Opacity represents number of the games played
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Ranking History Tab Content */}
+      {activeTab === 'rankings' && (
+        <div className="max-w-6xl mx-auto px-4 md:px-6 mb-8 md:mb-12">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
+            <div className="mb-6">
+              <h3 className="text-base md:text-lg font-medium text-gray-900">
+                Ranking History
+              </h3>
+              <p className="text-gray-500 mt-1 text-sm">
+                Track team rankings over time with interactive charts
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              {/* Team Selection */}
+              <div>
+                <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                  <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Select Teams
+                </h4>
+                
+                {/* Selected Teams Display */}
+                {selectedTeams.length > 0 && (
+                  <div className="mb-4">
+                    <div className="flex flex-wrap gap-2">
+                      {selectedTeams.map(team => (
+                        <div
+                          key={team}
+                          className="inline-flex items-center px-3 py-2 rounded-full text-sm bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-800 border border-blue-200 shadow-sm hover:shadow-md transition-all duration-200"
+                        >
+                          <span className="mr-2 font-medium">
+                            {team
+                              .replace('University of Southern California', 'USC')
+                              .replace('University of California-Los Angeles', 'UCLA')
+                              .replace('University of California-Irvine', 'UC Irvine')
+                              .replace('University of California-Santa Barbara', 'UC Santa Barbara')
+                              .replace('University of California-Davis', 'UC Davis')
+                              .replace('University of California-San Diego', 'UC San Diego')
+                              .replace('University of California', 'UC Berkeley')
+                              .replace('Stanford University', 'Stanford')
+                              .replace('Pepperdine University', 'Pepperdine')
+                              .replace('University of the Pacific', 'Pacific')
+                              .replace('Long Beach State University', 'Long Beach State')
+                              .replace('Princeton University', 'Princeton')
+                              .replace('Fordham University', 'Fordham')
+                              .replace('California Baptist University', 'Cal Baptist')
+                              .replace('Harvard University', 'Harvard')
+                              .replace('Brown University', 'Brown')
+                              .replace('Santa Clara University', 'Santa Clara')
+                              .replace('Loyola Marymount University', 'LMU')
+                              .replace('United States Naval Academy', 'Navy')
+                              .replace('San Jose State University', 'San Jose State')
+                              .replace('University of Hawaii', 'Hawaii')
+                              .replace('Fresno State', 'Fresno State')
+                              .replace('Arizona State University', 'Arizona State')
+                              .replace('Indiana University', 'Indiana')
+                              .replace('Wagner College', 'Wagner')
+                              .replace('University of Michigan', 'Michigan')
+                              .replace('Marist College', 'Marist')
+                              .replace('San Diego State University', 'San Diego State')
+                              .replace('McKendree University', 'McKendree')
+                              .replace('Pomona-Pitzer Colleges', 'Pomona-Pitzer')
+                            }
+                          </span>
+                          <button
+                            onClick={() => toggleTeamSelection(team)}
+                            className="ml-1 p-1 rounded-full text-blue-600 hover:text-white hover:bg-blue-600 focus:outline-none transition-all duration-200"
+                          >
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Enhanced Dropdown Selector */}
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                    <svg className="w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
+                  
+                  <select
+                    value=""
+                    onChange={(e) => {
+                      if (e.target.value && !selectedTeams.includes(e.target.value)) {
+                        toggleTeamSelection(e.target.value);
+                      }
+                      e.target.value = ''; // Reset dropdown
+                    }}
+                    className="w-full pl-12 pr-12 py-4 bg-white border-2 border-gray-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 cursor-pointer hover:border-blue-300 hover:shadow-md transition-all duration-200 appearance-none text-base font-medium"
+                  >
+                    <option value="" disabled className="text-gray-500">
+                      {selectedTeams.length === 0 ? 'Choose teams to track...' : 'Add another team...'}
+                    </option>
+                    {availableTeams
+                      .filter(team => !selectedTeams.includes(team))
+                      .map(team => (
+                        <option key={team} value={team} className="py-2">
+                          {team
+                            .replace('University of Southern California', 'USC')
+                            .replace('University of California-Los Angeles', 'UCLA')
+                            .replace('University of California-Irvine', 'UC Irvine')
+                            .replace('University of California-Santa Barbara', 'UC Santa Barbara')
+                            .replace('University of California-Davis', 'UC Davis')
+                            .replace('University of California-San Diego', 'UC San Diego')
+                            .replace('University of California', 'UC Berkeley')
+                            .replace('Stanford University', 'Stanford')
+                            .replace('Pepperdine University', 'Pepperdine')
+                            .replace('University of the Pacific', 'Pacific')
+                            .replace('Long Beach State University', 'Long Beach State')
+                            .replace('Princeton University', 'Princeton')
+                            .replace('Fordham University', 'Fordham')
+                            .replace('California Baptist University', 'Cal Baptist')
+                            .replace('Harvard University', 'Harvard')
+                            .replace('Brown University', 'Brown')
+                            .replace('Santa Clara University', 'Santa Clara')
+                            .replace('Loyola Marymount University', 'LMU')
+                            .replace('United States Naval Academy', 'Navy')
+                            .replace('San Jose State University', 'San Jose State')
+                            .replace('University of Hawaii', 'Hawaii')
+                            .replace('Fresno State', 'Fresno State')
+                            .replace('Arizona State University', 'Arizona State')
+                            .replace('Indiana University', 'Indiana')
+                            .replace('Wagner College', 'Wagner')
+                            .replace('University of Michigan', 'Michigan')
+                            .replace('Marist College', 'Marist')
+                            .replace('San Diego State University', 'San Diego State')
+                            .replace('McKendree University', 'McKendree')
+                            .replace('Pomona-Pitzer Colleges', 'Pomona-Pitzer')
+                          }
+                        </option>
+                      ))
+                    }
+                  </select>
+                  
+                  {/* Enhanced dropdown arrow */}
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                    <div className="p-1 rounded-full bg-gray-100 group-focus-within:bg-blue-100 transition-colors">
+                      <svg className="w-4 h-4 text-gray-500 group-focus-within:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Subtle background gradient */}
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/10 to-indigo-500/10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                </div>
+
+                {/* Enhanced Clear All Button */}
+                {selectedTeams.length > 0 && (
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="text-xs text-gray-500 font-medium">
+                      {selectedTeams.length} team{selectedTeams.length !== 1 ? 's' : ''} selected
+                    </span>
+                    <button
+                      onClick={() => {
+                        setSelectedTeams([]);
+                        setRankingData([]);
+                      }}
+                      className="inline-flex items-center px-3 py-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg font-medium transition-all duration-200 group"
+                    >
+                      <svg className="w-4 h-4 mr-1 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      Clear all teams
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Probability Matrix */}
+      {/* Probability Matrix - only show when matrix tab is active */}
+      {activeTab === 'matrix' && (
       <div className="max-w-7xl mx-auto px-4 md:px-6 pb-8 md:pb-16">
         <div className="bg-white rounded-2xl md:rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
           <div className="p-4 md:p-8">
@@ -959,413 +1192,242 @@ const WaterPoloMatrix = () => {
           </div>
         </div>
       </div>
+      )}
 
-      {/* Ranking History Section */}
-      <div className="max-w-6xl mx-auto px-4 md:px-6 mb-8 md:mb-12">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6">
-          <div className="mb-6">
-            <h3 className="text-base md:text-lg font-medium text-gray-900">
-              Ranking History
-            </h3>
-            <p className="text-gray-500 mt-1 text-sm">
-              Track team rankings over time with interactive charts
-            </p>
-          </div>
-
+      {/* Ranking History Tab Content */}
+      {activeTab === 'rankings' && (
+        <div className="max-w-6xl mx-auto px-4 md:px-6 mb-8 md:mb-12">
           <div className="space-y-6">
-            {/* Team Selection */}
+            {/* Date Range */}
             <div>
-              <h4 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+              <h4 className="text-sm font-medium text-gray-700 mb-4 flex items-center">
                 <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
-                Select Teams
+                Date Range
               </h4>
               
-              {/* Selected Teams Display */}
-              {selectedTeams.length > 0 && (
-                <div className="mb-4">
-                  <div className="flex flex-wrap gap-2">
-                    {selectedTeams.map(team => (
-                      <div
-                        key={team}
-                        className="inline-flex items-center px-3 py-2 rounded-full text-sm bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-800 border border-blue-200 shadow-sm hover:shadow-md transition-all duration-200"
+              {/* Quick Preset Buttons */}
+              <div className="mb-4">
+                <div className="flex flex-wrap gap-2">
+                  {gender === 'MWP' ? (
+                    <>
+                      <button
+                        onClick={() => setDateRange({ start: new Date('2024-01-01'), end: new Date('2024-12-31') })}
+                        className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                          dateRange.start.getFullYear() === 2024 && dateRange.end.getFullYear() === 2024 &&
+                          dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                            ? 'bg-blue-600 text-white shadow-lg'
+                            : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                        }`}
                       >
-                        <span className="mr-2 font-medium">
-                          {team
-                            .replace('University of Southern California', 'USC')
-                            .replace('University of California-Los Angeles', 'UCLA')
-                            .replace('University of California-Irvine', 'UC Irvine')
-                            .replace('University of California-Santa Barbara', 'UC Santa Barbara')
-                            .replace('University of California-Davis', 'UC Davis')
-                            .replace('University of California-San Diego', 'UC San Diego')
-                            .replace('University of California', 'UC Berkeley')
-                            .replace('Stanford University', 'Stanford')
-                            .replace('Pepperdine University', 'Pepperdine')
-                            .replace('University of the Pacific', 'Pacific')
-                            .replace('Long Beach State University', 'Long Beach State')
-                            .replace('Princeton University', 'Princeton')
-                            .replace('Fordham University', 'Fordham')
-                            .replace('California Baptist University', 'Cal Baptist')
-                            .replace('Harvard University', 'Harvard')
-                            .replace('Brown University', 'Brown')
-                            .replace('Santa Clara University', 'Santa Clara')
-                            .replace('Loyola Marymount University', 'LMU')
-                            .replace('United States Naval Academy', 'Navy')
-                            .replace('San Jose State University', 'San Jose State')
-                            .replace('University of Hawaii', 'Hawaii')
-                            .replace('Fresno State', 'Fresno State')
-                            .replace('Arizona State University', 'Arizona State')
-                            .replace('Indiana University', 'Indiana')
-                            .replace('Wagner College', 'Wagner')
-                            .replace('University of Michigan', 'Michigan')
-                            .replace('Marist College', 'Marist')
-                            .replace('San Diego State University', 'San Diego State')
-                            .replace('McKendree University', 'McKendree')
-                            .replace('Pomona-Pitzer Colleges', 'Pomona-Pitzer')
-                          }
-                        </span>
-                        <button
-                          onClick={() => toggleTeamSelection(team)}
-                          className="ml-1 p-1 rounded-full text-blue-600 hover:text-white hover:bg-blue-600 focus:outline-none transition-all duration-200"
-                        >
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                        2024 Season
+                      </button>
+                      <button
+                        onClick={() => setDateRange({ start: new Date('2023-01-01'), end: new Date('2023-12-31') })}
+                        className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                          dateRange.start.getFullYear() === 2023 && dateRange.end.getFullYear() === 2023 &&
+                          dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                            ? 'bg-blue-600 text-white shadow-lg'
+                            : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                        }`}
+                      >
+                        2023 Season
+                      </button>
+                      <button
+                        onClick={() => setDateRange({ start: new Date('2019-01-01'), end: new Date('2024-12-31') })}
+                        className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                          dateRange.start.getFullYear() === 2019 && dateRange.end.getFullYear() === 2024 &&
+                          dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                            ? 'bg-blue-600 text-white shadow-lg'
+                            : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                        }`}
+                      >
+                        Recent Years
+                      </button>
+                      <button
+                        onClick={() => setDateRange({ start: new Date('2008-01-01'), end: new Date('2024-12-31') })}
+                        className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                          dateRange.start.getFullYear() === 2008 && dateRange.end.getFullYear() === 2024 &&
+                          dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                            ? 'bg-gray-700 text-white shadow-lg'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        All Years
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setDateRange({ start: new Date('2025-01-01'), end: new Date('2025-06-01') })}
+                        className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                          dateRange.start.getFullYear() === 2025 && dateRange.end.getFullYear() === 2025 &&
+                          dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 5
+                            ? 'bg-pink-600 text-white shadow-lg'
+                            : 'bg-pink-50 text-pink-600 hover:bg-pink-100'
+                        }`}
+                      >
+                        2025 Season
+                      </button>
+                      <button
+                        onClick={() => setDateRange({ start: new Date('2024-01-01'), end: new Date('2024-12-31') })}
+                        className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                          dateRange.start.getFullYear() === 2024 && dateRange.end.getFullYear() === 2024 &&
+                          dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                            ? 'bg-pink-600 text-white shadow-lg'
+                            : 'bg-pink-50 text-pink-600 hover:bg-pink-100'
+                        }`}
+                      >
+                        2024 Season
+                      </button>
+                      <button
+                        onClick={() => setDateRange({ start: new Date('2019-01-01'), end: new Date('2025-12-31') })}
+                        className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                          dateRange.start.getFullYear() === 2019 && dateRange.end.getFullYear() === 2025 &&
+                          dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                            ? 'bg-pink-600 text-white shadow-lg'
+                            : 'bg-pink-50 text-pink-600 hover:bg-pink-100'
+                        }`}
+                      >
+                        Recent Years
+                      </button>
+                      <button
+                        onClick={() => setDateRange({ start: new Date('2008-01-01'), end: new Date('2025-12-31') })}
+                        className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
+                          dateRange.start.getFullYear() === 2008 && dateRange.end.getFullYear() === 2025 &&
+                          dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
+                            ? 'bg-gray-700 text-white shadow-lg'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        All Years (2008-2025)
+                      </button>
+                    </>
+                  )}
                 </div>
-              )}
-
-              {/* Enhanced Dropdown Selector */}
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-                  <svg className="w-5 h-5 text-gray-400 group-focus-within:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                  </svg>
-                </div>
-                
-                <select
-                  value=""
-                  onChange={(e) => {
-                    if (e.target.value && !selectedTeams.includes(e.target.value)) {
-                      toggleTeamSelection(e.target.value);
-                    }
-                    e.target.value = ''; // Reset dropdown
-                  }}
-                  className="w-full pl-12 pr-12 py-4 bg-white border-2 border-gray-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 cursor-pointer hover:border-blue-300 hover:shadow-md transition-all duration-200 appearance-none text-base font-medium"
-                >
-                  <option value="" disabled className="text-gray-500">
-                    {selectedTeams.length === 0 ? 'Choose teams to track...' : 'Add another team...'}
-                  </option>
-                  {availableTeams
-                    .filter(team => !selectedTeams.includes(team))
-                    .map(team => (
-                      <option key={team} value={team} className="py-2">
-                        {team
-                          .replace('University of Southern California', 'USC')
-                          .replace('University of California-Los Angeles', 'UCLA')
-                          .replace('University of California-Irvine', 'UC Irvine')
-                          .replace('University of California-Santa Barbara', 'UC Santa Barbara')
-                          .replace('University of California-Davis', 'UC Davis')
-                          .replace('University of California-San Diego', 'UC San Diego')
-                          .replace('University of California', 'UC Berkeley')
-                          .replace('Stanford University', 'Stanford')
-                          .replace('Pepperdine University', 'Pepperdine')
-                          .replace('University of the Pacific', 'Pacific')
-                          .replace('Long Beach State University', 'Long Beach State')
-                          .replace('Princeton University', 'Princeton')
-                          .replace('Fordham University', 'Fordham')
-                          .replace('California Baptist University', 'Cal Baptist')
-                          .replace('Harvard University', 'Harvard')
-                          .replace('Brown University', 'Brown')
-                          .replace('Santa Clara University', 'Santa Clara')
-                          .replace('Loyola Marymount University', 'LMU')
-                          .replace('United States Naval Academy', 'Navy')
-                          .replace('San Jose State University', 'San Jose State')
-                          .replace('University of Hawaii', 'Hawaii')
-                          .replace('Fresno State', 'Fresno State')
-                          .replace('Arizona State University', 'Arizona State')
-                          .replace('Indiana University', 'Indiana')
-                          .replace('Wagner College', 'Wagner')
-                          .replace('University of Michigan', 'Michigan')
-                          .replace('Marist College', 'Marist')
-                          .replace('San Diego State University', 'San Diego State')
-                          .replace('McKendree University', 'McKendree')
-                          .replace('Pomona-Pitzer Colleges', 'Pomona-Pitzer')
-                        }
-                      </option>
-                    ))
-                  }
-                </select>
-                
-                {/* Enhanced dropdown arrow */}
-                <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
-                  <div className="p-1 rounded-full bg-gray-100 group-focus-within:bg-blue-100 transition-colors">
-                    <svg className="w-4 h-4 text-gray-500 group-focus-within:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
-                </div>
-
-                {/* Subtle background gradient */}
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/10 to-indigo-500/10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
               </div>
 
-              {/* Enhanced Clear All Button */}
-              {selectedTeams.length > 0 && (
-                <div className="mt-4 flex items-center justify-between">
-                  <span className="text-xs text-gray-500 font-medium">
-                    {selectedTeams.length} team{selectedTeams.length !== 1 ? 's' : ''} selected
+              {/* Custom Date Display */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    From Date
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                      <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <DatePicker
+                      selected={dateRange.start}
+                      onChange={(date) => setDateRange(prev => ({ ...prev, start: date }))}
+                      customInput={
+                        <input
+                          className="custom-date-input start-date"
+                          readOnly
+                        />
+                      }
+                      dateFormat="MMMM d, yyyy"
+                      maxDate={new Date()}
+                      minDate={new Date('2008-01-01')}
+                      showYearDropdown
+                      showMonthDropdown
+                      dropdownMode="select"
+                      placeholderText="Select start date"
+                    />
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/10 to-indigo-500/10 pointer-events-none"></div>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    To Date
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                      <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <DatePicker
+                      selected={dateRange.end}
+                      onChange={(date) => setDateRange(prev => ({ ...prev, end: date }))}
+                      customInput={
+                        <input
+                          className="custom-date-input end-date"
+                          readOnly
+                        />
+                      }
+                      dateFormat="MMMM d, yyyy"
+                      maxDate={new Date()}
+                      minDate={dateRange.start}
+                      showYearDropdown
+                      showMonthDropdown
+                      dropdownMode="select"
+                      placeholderText="Select end date"
+                    />
+                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 pointer-events-none"></div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Date Range Display */}
+              <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600 font-medium">Selected Range:</span>
+                  <span className="text-blue-700 font-semibold">
+                    {dateRange.start.toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })} - {dateRange.end.toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric', 
+                      year: 'numeric' 
+                    })}
                   </span>
-                  <button
-                    onClick={() => {
-                      setSelectedTeams([]);
-                      setRankingData([]);
-                    }}
-                    className="inline-flex items-center px-3 py-1.5 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg font-medium transition-all duration-200 group"
-                  >
-                    <svg className="w-4 h-4 mr-1 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    Clear all teams
-                  </button>
-                </div>
-              )}
-            </div>
-
-              {/* Date Range */}
-              <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-4 flex items-center">
-                  <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  Date Range
-                </h4>
-                
-                {/* Quick Preset Buttons */}
-                <div className="mb-4">
-                  <div className="flex flex-wrap gap-2">
-                    {gender === 'MWP' ? (
-                      <>
-                        <button
-                          onClick={() => setDateRange({ start: new Date('2024-01-01'), end: new Date('2024-12-31') })}
-                          className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                            dateRange.start.getFullYear() === 2024 && dateRange.end.getFullYear() === 2024 &&
-                            dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
-                              ? 'bg-blue-600 text-white shadow-lg'
-                              : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                          }`}
-                        >
-                          2024 Season
-                        </button>
-                        <button
-                          onClick={() => setDateRange({ start: new Date('2023-01-01'), end: new Date('2023-12-31') })}
-                          className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                            dateRange.start.getFullYear() === 2023 && dateRange.end.getFullYear() === 2023 &&
-                            dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
-                              ? 'bg-blue-600 text-white shadow-lg'
-                              : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                          }`}
-                        >
-                          2023 Season
-                        </button>
-                        <button
-                          onClick={() => setDateRange({ start: new Date('2019-01-01'), end: new Date('2024-12-31') })}
-                          className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                            dateRange.start.getFullYear() === 2019 && dateRange.end.getFullYear() === 2024 &&
-                            dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
-                              ? 'bg-blue-600 text-white shadow-lg'
-                              : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
-                          }`}
-                        >
-                          Recent Years
-                        </button>
-                        <button
-                          onClick={() => setDateRange({ start: new Date('2008-01-01'), end: new Date('2024-12-31') })}
-                          className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                            dateRange.start.getFullYear() === 2008 && dateRange.end.getFullYear() === 2024 &&
-                            dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
-                              ? 'bg-gray-700 text-white shadow-lg'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                        >
-                          All Years
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => setDateRange({ start: new Date('2025-01-01'), end: new Date('2025-06-01') })}
-                          className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                            dateRange.start.getFullYear() === 2025 && dateRange.end.getFullYear() === 2025 &&
-                            dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 5
-                              ? 'bg-pink-600 text-white shadow-lg'
-                              : 'bg-pink-50 text-pink-600 hover:bg-pink-100'
-                          }`}
-                        >
-                          2025 Season
-                        </button>
-                        <button
-                          onClick={() => setDateRange({ start: new Date('2024-01-01'), end: new Date('2024-12-31') })}
-                          className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                            dateRange.start.getFullYear() === 2024 && dateRange.end.getFullYear() === 2024 &&
-                            dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
-                              ? 'bg-pink-600 text-white shadow-lg'
-                              : 'bg-pink-50 text-pink-600 hover:bg-pink-100'
-                          }`}
-                        >
-                          2024 Season
-                        </button>
-                        <button
-                          onClick={() => setDateRange({ start: new Date('2019-01-01'), end: new Date('2025-12-31') })}
-                          className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                            dateRange.start.getFullYear() === 2019 && dateRange.end.getFullYear() === 2025 &&
-                            dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
-                              ? 'bg-pink-600 text-white shadow-lg'
-                              : 'bg-pink-50 text-pink-600 hover:bg-pink-100'
-                          }`}
-                        >
-                          Recent Years
-                        </button>
-                        <button
-                          onClick={() => setDateRange({ start: new Date('2008-01-01'), end: new Date('2025-12-31') })}
-                          className={`px-4 py-2 text-sm font-medium rounded-full transition-all ${
-                            dateRange.start.getFullYear() === 2008 && dateRange.end.getFullYear() === 2025 &&
-                            dateRange.start.getMonth() === 0 && dateRange.end.getMonth() === 11
-                              ? 'bg-gray-700 text-white shadow-lg'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                        >
-                          All Years (2008-2025)
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {/* Custom Date Display */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      From Date
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-                        <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <DatePicker
-                        selected={dateRange.start}
-                        onChange={(date) => setDateRange(prev => ({ ...prev, start: date }))}
-                        customInput={
-                          <input
-                            className="custom-date-input start-date"
-                            readOnly
-                          />
-                        }
-                        dateFormat="MMMM d, yyyy"
-                        maxDate={new Date()}
-                        minDate={new Date('2008-01-01')}
-                        showYearDropdown
-                        showMonthDropdown
-                        dropdownMode="select"
-                        placeholderText="Select start date"
-                      />
-                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/10 to-indigo-500/10 pointer-events-none"></div>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      To Date
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
-                        <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <DatePicker
-                        selected={dateRange.end}
-                        onChange={(date) => setDateRange(prev => ({ ...prev, end: date }))}
-                        customInput={
-                          <input
-                            className="custom-date-input end-date"
-                            readOnly
-                          />
-                        }
-                        dateFormat="MMMM d, yyyy"
-                        maxDate={new Date()}
-                        minDate={dateRange.start}
-                        showYearDropdown
-                        showMonthDropdown
-                        dropdownMode="select"
-                        placeholderText="Select end date"
-                      />
-                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 pointer-events-none"></div>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Date Range Display */}
-                <div className="mt-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-600 font-medium">Selected Range:</span>
-                    <span className="text-blue-700 font-semibold">
-                      {dateRange.start.toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric', 
-                        year: 'numeric' 
-                      })} - {dateRange.end.toLocaleDateString('en-US', { 
-                        month: 'short', 
-                        day: 'numeric', 
-                        year: 'numeric' 
-                      })}
-                    </span>
-                  </div>
                 </div>
               </div>
-
-              {/* Chart */}
-              {rankingLoading && selectedTeams.length > 0 && (
-                <div className="flex justify-center py-8">
-                  <div className="flex items-center space-x-2 text-blue-600">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                    <span className="text-sm font-medium">Loading ranking history...</span>
-                  </div>
-                </div>
-              )}
-
-              {rankingData.length > 0 && (
-                <div className="h-96 w-full">
-                  <Line data={prepareChartData()} options={chartOptions} />
-                </div>
-              )}
-
-              {/* No Data Message */}
-              {!rankingLoading && rankingData.length === 0 && selectedTeams.length > 0 && (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">
-                    No ranking data found for the selected teams and date range.
-                  </p>
-                </div>
-              )}
-
-              {/* No Teams Selected Message */}
-              {selectedTeams.length === 0 && (
-                <div className="text-center py-8">
-                  <p className="text-gray-500">
-                    Select one or more teams above to view their ranking history.
-                  </p>
-                </div>
-              )}
             </div>
+
+            {/* Chart */}
+            {rankingLoading && selectedTeams.length > 0 && (
+              <div className="flex justify-center py-8">
+                <div className="flex items-center space-x-2 text-blue-600">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+                  <span className="text-sm font-medium">Loading ranking history...</span>
+                </div>
+              </div>
+            )}
+
+            {rankingData.length > 0 && (
+              <div className="h-96 w-full">
+                <Line data={prepareChartData()} options={chartOptions} />
+              </div>
+            )}
+
+            {/* No Data Message */}
+            {!rankingLoading && rankingData.length === 0 && selectedTeams.length > 0 && (
+              <div className="text-center py-8">
+                <p className="text-gray-500">
+                  No ranking data found for the selected teams and date range.
+                </p>
+              </div>
+            )}
+
+            {/* No Teams Selected Message */}
+            {selectedTeams.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-gray-500">
+                  Select one or more teams above to view their ranking history.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Footer */}
       <div className="text-center py-8 md:py-12 px-6">
