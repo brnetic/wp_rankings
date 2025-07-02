@@ -1429,16 +1429,6 @@ const WaterPoloMatrix = () => {
         </div>
       )}
 
-      {/* Footer */}
-      <div className="text-center py-8 md:py-12 px-6">
-        <p className="text-xs md:text-sm text-gray-400">
-          Opacity ∝ (number of games / 8). Higher delim → more opaque.
-        </p>
-        <p className="text-xs md:text-sm text-gray-400 mt-2">
-          Data loaded from MongoDB • {probData.length} teams • {headers.length} ranks
-        </p>
-      </div>
-
       {/* Matches Modal */}
       {matchesModal.open && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -1533,6 +1523,17 @@ const WaterPoloMatrix = () => {
           </div>
         </div>
       )}
+
+      {/* Footer */}
+      <footer className="mt-16 bg-gray-50 border-t border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
+          <div className="text-center">
+            <p className="text-xs text-gray-500 leading-relaxed max-w-4xl mx-auto">
+              wp-rankings.vercel.app is not endorsed by, affiliated with, maintained by, or sponsored by the National Collegiate Athletic Association ("NCAA"), any university or college, or any affiliates associated with NCAA collegiate athletics. All copyrights, trademarks, content, game titles, trade names, trade dress, artwork, imagery, and other rights are the trademark, copyrighted material, or other property of their respective owners.
+            </p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
